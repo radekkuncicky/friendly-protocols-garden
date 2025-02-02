@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Search, SlidersHorizontal } from "lucide-react";
+import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ClientsTable } from "@/components/clients/ClientsTable";
 import { ClientsFilters } from "@/components/clients/ClientsFilters";
 import { CreateClientSheet } from "@/components/clients/CreateClientSheet";
 
 const Clients = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState("created_at");
   const [showCreateClient, setShowCreateClient] = useState(false);
 
   const { data: clients, isLoading } = useQuery({
@@ -33,6 +32,17 @@ const Clients = () => {
     client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.ico?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const sortedClients = filteredClients?.sort((a, b) => {
+    switch (sortBy) {
+      case "name":
+        return a.name.localeCompare(b.name);
+      case "protocols":
+        return (b.protocols[0]?.count || 0) - (a.protocols[0]?.count || 0);
+      default:
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
 
   if (isLoading) {
     return (
@@ -58,28 +68,14 @@ const Clients = () => {
         </Button>
       </div>
 
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Hledat podle jména, emailu nebo IČO..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <SlidersHorizontal className="mr-2 h-4 w-4" />
-          Filtry
-        </Button>
-      </div>
+      <ClientsFilters
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+      />
 
-      {showFilters && <ClientsFilters />}
-
-      <ClientsTable clients={filteredClients || []} />
+      <ClientsTable clients={sortedClients || []} />
 
       <CreateClientSheet
         open={showCreateClient}
