@@ -54,12 +54,16 @@ const Templates = () => {
   useEffect(() => {
     const fetchUserRole = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session); // Debug log
+      
       if (session) {
-        const { data: roles } = await supabase
+        const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
           .single();
+        
+        console.log("User roles data:", roles, "Error:", rolesError); // Debug log
         
         if (roles) {
           setUserRole(roles.role);
@@ -69,14 +73,18 @@ const Templates = () => {
     fetchUserRole();
   }, []);
 
-  // Fetch templates
+  // Fetch templates with better error handling
   const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
+      console.log("Fetching templates..."); // Debug log
+      
       const { data, error } = await supabase
         .from("templates")
         .select("*")
         .order("created_at", { ascending: false });
+
+      console.log("Templates data:", data, "Error:", error); // Debug log
 
       if (error) {
         console.error("Error fetching templates:", error);
@@ -230,12 +238,44 @@ const Templates = () => {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
         <h1 className="text-2xl font-bold text-red-500">Chyba při načítání šablon</h1>
-        <p className="text-gray-600">Zkuste to prosím později nebo kontaktujte podporu.</p>
+        <p className="text-gray-600">
+          {error instanceof Error ? error.message : "Zkuste to prosím později nebo kontaktujte podporu."}
+        </p>
       </div>
     );
   }
 
   const categories = [...new Set(templates?.map((t) => t.category || "Obecné"))];
+
+  // If no templates are found, show a message
+  if (!templates || templates.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Šablony</h1>
+          {(userRole === "admin" || userRole === "manager") && (
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Nová šablona
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+          <p className="text-xl text-gray-600">Zatím zde nejsou žádné šablony</p>
+          {(userRole === "admin" || userRole === "manager") && (
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Vytvořit první šablonu
+            </Button>
+          )}
+        </div>
+        <CreateTemplateDialog
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
