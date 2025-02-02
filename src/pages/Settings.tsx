@@ -1,37 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-
-const settingsFormSchema = z.object({
-  company_name: z.string().min(1, "Název společnosti je povinný"),
-  company_address: z.string().optional(),
-  company_ico: z.string().optional(),
-  company_dic: z.string().optional(),
-  company_email: z.string().email("Neplatný email").optional(),
-  company_phone: z.string().optional(),
-  protocol_numbering_format: z.string().optional(),
-});
-
-type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+import { CompanyInfoForm, type CompanyInfoFormValues } from "@/components/settings/CompanyInfoForm";
+import { LogoUpload } from "@/components/settings/LogoUpload";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -51,7 +26,6 @@ const Settings = () => {
     },
   });
 
-  // Check if user has admin role
   const { data: userRole } = useQuery({
     queryKey: ["userRole"],
     queryFn: async () => {
@@ -69,7 +43,6 @@ const Settings = () => {
     },
   });
 
-  // Redirect non-admin users
   useEffect(() => {
     if (userRole && userRole !== "admin") {
       navigate("/");
@@ -86,7 +59,6 @@ const Settings = () => {
     if (!file) return;
 
     try {
-      // Upload file to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `logo-${Date.now()}.${fileExt}`;
       
@@ -96,21 +68,18 @@ const Settings = () => {
 
       if (uploadError) throw uploadError;
 
-      // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('company-logos')
         .getPublicUrl(fileName);
 
-      // Update settings with new logo URL - now with proper WHERE clause
       const { error: updateError } = await supabase
         .from('settings')
         .update({ company_logo: publicUrl })
-        .eq('id', settings?.id) // Add WHERE clause to target specific settings record
+        .eq('id', settings?.id)
         .single();
 
       if (updateError) throw updateError;
 
-      // Invalidate settings query to refresh data
       queryClient.invalidateQueries({ queryKey: ['settings'] });
 
       toast({
@@ -127,28 +96,14 @@ const Settings = () => {
     }
   };
 
-  const form = useForm<SettingsFormValues>({
-    resolver: zodResolver(settingsFormSchema),
-    defaultValues: {
-      company_name: "",
-      company_address: "",
-      company_ico: "",
-      company_dic: "",
-      company_email: "",
-      company_phone: "",
-      protocol_numbering_format: "",
-    },
-    values: settings || undefined,
-  });
-
   const updateMutation = useMutation({
-    mutationFn: async (values: SettingsFormValues) => {
+    mutationFn: async (values: CompanyInfoFormValues) => {
       if (!settings?.id) throw new Error("No settings record found");
       
       const { data, error } = await supabase
         .from("settings")
         .update(values)
-        .eq('id', settings.id) // Add WHERE clause here too
+        .eq('id', settings.id)
         .select()
         .single();
 
@@ -170,10 +125,6 @@ const Settings = () => {
       });
     },
   });
-
-  const onSubmit = (values: SettingsFormValues) => {
-    updateMutation.mutate(values);
-  };
 
   if (isLoading) {
     return <div>Načítání...</div>;
@@ -197,156 +148,15 @@ const Settings = () => {
               <CardTitle>Firemní údaje</CardTitle>
             </CardHeader>
             <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="company_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Název společnosti</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="company_address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Adresa</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="company_ico"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>IČO</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="company_dic"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>DIČ</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="company_email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="email" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="company_phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Telefon</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="space-y-4">
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-medium">Logo společnosti</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Nahrajte logo společnosti pro použití v protokolech
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        {settings?.company_logo && (
-                          <img
-                            src={settings.company_logo}
-                            alt="Company logo"
-                            className="h-10 w-auto object-contain"
-                          />
-                        )}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => document.getElementById('logo-upload')?.click()}
-                        >
-                          <Upload className="mr-2 h-4 w-4" />
-                          Nahrát logo
-                        </Button>
-                        <input
-                          id="logo-upload"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleLogoUpload}
-                        />
-                      </div>
-                    </div>
-                    <Separator />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="protocol_numbering_format"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Formát číslování protokolů</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="PP-{YYYY}-{NUM}" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      disabled={updateMutation.isPending}
-                      className="w-full md:w-auto"
-                    >
-                      {updateMutation.isPending ? "Ukládání..." : "Uložit změny"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
+              <CompanyInfoForm
+                defaultValues={settings}
+                onSubmit={updateMutation.mutate}
+                isSubmitting={updateMutation.isPending}
+              />
+              <LogoUpload
+                currentLogo={settings?.company_logo}
+                onUpload={handleLogoUpload}
+              />
             </CardContent>
           </Card>
         </TabsContent>
