@@ -9,16 +9,236 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          address: string | null
+          created_at: string
+          created_by: string | null
+          dic: string | null
+          email: string | null
+          ico: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          dic?: string | null
+          email?: string | null
+          ico?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          dic?: string | null
+          email?: string | null
+          ico?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      protocols: {
+        Row: {
+          client_id: string | null
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          protocol_number: string
+          sent_at: string | null
+          status: string
+          template_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          protocol_number: string
+          sent_at?: string | null
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          protocol_number?: string
+          sent_at?: string | null
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocols_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "protocols_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settings: {
+        Row: {
+          company_address: string | null
+          company_dic: string | null
+          company_email: string | null
+          company_ico: string | null
+          company_logo: string | null
+          company_name: string | null
+          company_phone: string | null
+          id: string
+          protocol_numbering_format: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_address?: string | null
+          company_dic?: string | null
+          company_email?: string | null
+          company_ico?: string | null
+          company_logo?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          id?: string
+          protocol_numbering_format?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_address?: string | null
+          company_dic?: string | null
+          company_email?: string | null
+          company_ico?: string | null
+          company_logo?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          id?: string
+          protocol_numbering_format?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      templates: {
+        Row: {
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_minimum_role: {
+        Args: {
+          required_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "worker"
     }
     CompositeTypes: {
       [_ in never]: never
