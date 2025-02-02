@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Plus, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,12 +21,19 @@ interface CreateTemplateDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface TemplateItem {
+  name: string;
+  quantity: string;
+  unit: string;
+}
+
 const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Obecné");
+  const [items, setItems] = useState<TemplateItem[]>([]);
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -36,6 +44,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
         name,
         content: {
           description,
+          items,
           fields: [],
         },
         category,
@@ -53,6 +62,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
       setName("");
       setDescription("");
       setCategory("Obecné");
+      setItems([]);
     },
     onError: (error) => {
       toast({
@@ -77,36 +87,53 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
     createMutation.mutate();
   };
 
+  const addItem = () => {
+    setItems([...items, { name: "", quantity: "", unit: "ks" }]);
+  };
+
+  const removeItem = (index: number) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const updateItem = (index: number, field: keyof TemplateItem, value: string) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Vytvořit novou šablonu</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Název šablony</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Zadejte název šablony"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Název šablony</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Zadejte název šablony"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Kategorie</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Vyberte kategorii" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Obecné">Obecné</SelectItem>
+                  <SelectItem value="Stavební">Stavební</SelectItem>
+                  <SelectItem value="Údržba">Údržba</SelectItem>
+                  <SelectItem value="Kontrola">Kontrola</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="category">Kategorie</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Vyberte kategorii" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Obecné">Obecné</SelectItem>
-                <SelectItem value="Stavební">Stavební</SelectItem>
-                <SelectItem value="Údržba">Údržba</SelectItem>
-                <SelectItem value="Kontrola">Kontrola</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          
           <div className="space-y-2">
             <Label htmlFor="description">Popis</Label>
             <Textarea
@@ -116,6 +143,64 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
               placeholder="Zadejte popis šablony"
             />
           </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label>Položky</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addItem}>
+                <Plus className="h-4 w-4 mr-2" />
+                Přidat položku
+              </Button>
+            </div>
+            
+            {items.map((item, index) => (
+              <div key={index} className="grid grid-cols-4 gap-2 items-end">
+                <div className="space-y-2">
+                  <Label>Název</Label>
+                  <Input
+                    value={item.name}
+                    onChange={(e) => updateItem(index, "name", e.target.value)}
+                    placeholder="Název položky"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Množství</Label>
+                  <Input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => updateItem(index, "quantity", e.target.value)}
+                    placeholder="Množství"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Jednotka</Label>
+                  <Select
+                    value={item.unit}
+                    onValueChange={(value) => updateItem(index, "unit", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ks">ks</SelectItem>
+                      <SelectItem value="m">m</SelectItem>
+                      <SelectItem value="g">g</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeItem(index)}
+                  className="h-10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+
           <div className="flex justify-end gap-2">
             <Button
               type="button"
