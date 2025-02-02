@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserTable } from "./UserTable";
 import { InviteUserDialog } from "./InviteUserDialog";
-import { UserActivityLog } from "./UserActivityLog";
 
 export const UserRolesTab = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
@@ -50,29 +49,14 @@ export const UserRolesTab = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        <div className="xl:col-span-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Uživatelé</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <UserTable users={users || []} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="xl:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Historie aktivit</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <UserActivityLog />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Uživatelé</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <UserTable users={users || []} />
+        </CardContent>
+      </Card>
 
       <InviteUserDialog
         open={isInviteDialogOpen}
