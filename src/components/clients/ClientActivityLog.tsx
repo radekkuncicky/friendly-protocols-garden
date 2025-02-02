@@ -15,7 +15,7 @@ export const ClientActivityLog = ({ clientId }: ClientActivityLogProps) => {
         .from("client_activity_logs")
         .select(`
           *,
-          user:profiles(full_name)
+          profiles!client_activity_logs_user_id_fkey(full_name)
         `)
         .eq("client_id", clientId)
         .order("created_at", { ascending: false });
@@ -47,8 +47,8 @@ export const ClientActivityLog = ({ clientId }: ClientActivityLogProps) => {
           <div className="flex-1">
             <p className="text-sm">{activity.description}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {activity.user?.full_name} •{" "}
-              {format(new Date(activity.created_at), "Pp", { locale: cs })}
+              {activity.profiles?.full_name} •{" "}
+              {format(new Date(activity.created_at || ''), "Pp", { locale: cs })}
             </p>
           </div>
         </div>

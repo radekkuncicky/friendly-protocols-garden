@@ -35,7 +35,7 @@ export const ClientDetailSheet = ({
         .select(`
           *,
           protocols:protocols(count),
-          created_by:profiles!clients_created_by_fkey(full_name)
+          profiles!clients_created_by_fkey(full_name)
         `)
         .eq("id", clientId)
         .single();
@@ -59,7 +59,7 @@ export const ClientDetailSheet = ({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>Vytvořeno: {format(new Date(client?.created_at || ''), "Pp", { locale: cs })}</span>
             <span>•</span>
-            <span>Vytvořil: {client?.created_by?.full_name}</span>
+            <span>Vytvořil: {client?.profiles?.full_name}</span>
           </div>
         </SheetHeader>
 
