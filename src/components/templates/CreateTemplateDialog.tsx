@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Json } from "@/integrations/supabase/types";
 
 interface CreateTemplateDialogProps {
   open: boolean;
@@ -40,13 +41,20 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session?.user?.id) throw new Error("No user session");
       
+      // Convert the content to a format that matches the Json type
+      const templateContent: Json = {
+        description,
+        items: items.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          unit: item.unit
+        })),
+        fields: []
+      };
+      
       const { error } = await supabase.from("templates").insert({
         name,
-        content: {
-          description,
-          items,
-          fields: [],
-        },
+        content: templateContent,
         category,
         created_by: sessionData.session.user.id,
       });
