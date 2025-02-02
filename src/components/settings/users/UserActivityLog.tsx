@@ -12,12 +12,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DateRange } from "react-day-picker";
 
 export const UserActivityLog = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | null>(null);
   const [selectedLog, setSelectedLog] = useState<any>(null);
 
   const { data: logs, isLoading } = useQuery({
@@ -46,10 +47,11 @@ export const UserActivityLog = () => {
         query = query.eq("user_id", selectedUser);
       }
 
-      if (dateRange?.from && dateRange?.to) {
-        query = query
-          .gte("created_at", dateRange.from.toISOString())
-          .lte("created_at", dateRange.to.toISOString());
+      if (dateRange?.from) {
+        query = query.gte("created_at", dateRange.from.toISOString());
+        if (dateRange.to) {
+          query = query.lte("created_at", dateRange.to.toISOString());
+        }
       }
 
       const { data, error } = await query;
@@ -113,7 +115,7 @@ export const UserActivityLog = () => {
         <div className="flex items-center gap-2 flex-wrap">
           <DatePickerWithRange
             value={dateRange}
-            onChange={setDateRange}
+            onChange={(newDateRange: DateRange | null) => setDateRange(newDateRange)}
           />
           <Select value={selectedAction || ""} onValueChange={setSelectedAction}>
             <SelectTrigger className="w-[180px]">
