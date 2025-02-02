@@ -65,6 +65,94 @@ const Templates = () => {
     },
   });
 
+  // Duplicate template mutation
+  const duplicateMutation = useMutation({
+    mutationFn: async (template: Template) => {
+      const duplicatedTemplate = {
+        ...template,
+        id: undefined,
+        name: `${template.name} (kopie)`,
+        created_at: new Date().toISOString(),
+      };
+      delete duplicatedTemplate.id;
+
+      const { data, error } = await supabase
+        .from("templates")
+        .insert([duplicatedTemplate])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast({
+        title: "Šablona byla úspěšně zkopírována",
+        description: "Nová šablona byla vytvořena jako kopie.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Chyba při kopírování šablony",
+        description: "Zkuste to prosím později.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Toggle lock mutation
+  const toggleLockMutation = useMutation({
+    mutationFn: async ({ id, isLocked }: { id: string; isLocked: boolean }) => {
+      const { data, error } = await supabase
+        .from("templates")
+        .update({ is_locked: !isLocked })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast({
+        title: "Stav šablony byl změněn",
+        description: "Změna byla úspěšně uložena.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Chyba při změně stavu šablony",
+        description: "Zkuste to prosím později.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete template handler
+  const handleDelete = async (template: Template) => {
+    const { error } = await supabase
+      .from("templates")
+      .delete()
+      .eq("id", template.id);
+
+    if (error) {
+      toast({
+        title: "Chyba při mazání šablony",
+        description: "Zkuste to prosím později.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+    toast({
+      title: "Šablona byla smazána",
+      description: "Šablona byla úspěšně odstraněna.",
+    });
+  };
+
   const filteredTemplates = templates?.filter(template =>
     template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     template.content.description?.toLowerCase().includes(searchQuery.toLowerCase())
