@@ -177,6 +177,13 @@ export type Database = {
           company_logo: string | null
           company_name: string | null
           company_phone: string | null
+          document_body_config: Json | null
+          document_client_info_position: string | null
+          document_company_info_position: string | null
+          document_footer_config: Json | null
+          document_header_config: Json | null
+          document_logo_position: string | null
+          document_template_type: string | null
           id: string
           protocol_numbering_format: string | null
           updated_at: string
@@ -190,6 +197,13 @@ export type Database = {
           company_logo?: string | null
           company_name?: string | null
           company_phone?: string | null
+          document_body_config?: Json | null
+          document_client_info_position?: string | null
+          document_company_info_position?: string | null
+          document_footer_config?: Json | null
+          document_header_config?: Json | null
+          document_logo_position?: string | null
+          document_template_type?: string | null
           id?: string
           protocol_numbering_format?: string | null
           updated_at?: string
@@ -203,6 +217,13 @@ export type Database = {
           company_logo?: string | null
           company_name?: string | null
           company_phone?: string | null
+          document_body_config?: Json | null
+          document_client_info_position?: string | null
+          document_company_info_position?: string | null
+          document_footer_config?: Json | null
+          document_header_config?: Json | null
+          document_logo_position?: string | null
+          document_template_type?: string | null
           id?: string
           protocol_numbering_format?: string | null
           updated_at?: string

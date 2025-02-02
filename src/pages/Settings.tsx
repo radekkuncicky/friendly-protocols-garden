@@ -9,6 +9,7 @@ import { CompanyInfoForm, type CompanyInfoFormValues } from "@/components/settin
 import { LogoUpload } from "@/components/settings/LogoUpload";
 import { UserRolesTab } from "@/components/settings/users/UserRolesTab";
 import { AppearanceTab } from "@/components/settings/appearance/AppearanceTab";
+import { DocumentSettingsTab } from "@/components/settings/documents/DocumentSettingsTab";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -109,7 +110,7 @@ const Settings = () => {
           <TabsTrigger value="company">Firemní údaje</TabsTrigger>
           <TabsTrigger value="users">Uživatelé a role</TabsTrigger>
           <TabsTrigger value="appearance">Vzhled</TabsTrigger>
-          <TabsTrigger value="documents">Dokumenty</TabsTrigger>
+          <TabsTrigger value="documents">Nastavení dokumentů</TabsTrigger>
         </TabsList>
 
         <TabsContent value="company">
@@ -140,16 +141,7 @@ const Settings = () => {
         </TabsContent>
 
         <TabsContent value="documents">
-          <Card>
-            <CardHeader>
-              <CardTitle>Nastavení dokumentů</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Nastavení dokumentů bude implementováno v další fázi.
-              </p>
-            </CardContent>
-          </Card>
+          <DocumentSettingsTab />
         </TabsContent>
       </Tabs>
     </div>
