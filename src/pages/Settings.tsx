@@ -3,13 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CompanyInfoForm, type CompanyInfoFormValues } from "@/components/settings/CompanyInfoForm";
-import { LogoUpload } from "@/components/settings/LogoUpload";
-import { UserRolesTab } from "@/components/settings/users/UserRolesTab";
-import { AppearanceTab } from "@/components/settings/appearance/AppearanceTab";
-import { DocumentSettingsTab } from "@/components/settings/documents/DocumentSettingsTab";
+import { type CompanyInfoFormValues } from "@/components/settings/CompanyInfoForm";
+import { SettingsTabs } from "@/components/settings/SettingsTabs";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -104,46 +99,13 @@ const Settings = () => {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">Nastavení</h1>
-
-      <Tabs defaultValue="company" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="company">Firemní údaje</TabsTrigger>
-          <TabsTrigger value="users">Uživatelé a role</TabsTrigger>
-          <TabsTrigger value="appearance">Vzhled</TabsTrigger>
-          <TabsTrigger value="documents">Nastavení dokumentů</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="company">
-          <Card>
-            <CardHeader>
-              <CardTitle>Firemní údaje</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CompanyInfoForm 
-                defaultValues={settings}
-                onSubmit={(values) => updateMutation.mutate(values)}
-                isSubmitting={updateMutation.isPending}
-              />
-              <LogoUpload 
-                currentLogo={currentLogo}
-                onUpload={handleLogoUpload}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="users">
-          <UserRolesTab />
-        </TabsContent>
-
-        <TabsContent value="appearance">
-          <AppearanceTab />
-        </TabsContent>
-
-        <TabsContent value="documents">
-          <DocumentSettingsTab />
-        </TabsContent>
-      </Tabs>
+      <SettingsTabs
+        settings={settings}
+        currentLogo={currentLogo}
+        onLogoUpload={handleLogoUpload}
+        onCompanyInfoSubmit={(values) => updateMutation.mutate(values)}
+        isSubmitting={updateMutation.isPending}
+      />
     </div>
   );
 };
