@@ -173,6 +173,7 @@ export type Database = {
       }
       templates: {
         Row: {
+          category: string | null
           content: Json
           created_at: string
           created_by: string | null
@@ -182,6 +183,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category?: string | null
           content: Json
           created_at?: string
           created_by?: string | null
@@ -191,6 +193,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category?: string | null
           content?: Json
           created_at?: string
           created_by?: string | null
