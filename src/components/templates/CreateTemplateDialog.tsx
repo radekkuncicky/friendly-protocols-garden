@@ -127,9 +127,9 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
         <DialogHeader>
           <DialogTitle>Vytvořit novou šablonu</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
               <Label htmlFor="name">Název šablony</Label>
               <Input
                 id="name"
@@ -138,7 +138,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
                 placeholder="Zadejte název šablony"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="category">Kategorie</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
@@ -154,7 +154,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
             </div>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="description">Popis</Label>
             <Textarea
               id="description"
@@ -164,7 +164,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
             />
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 py-1">
             <Switch
               id="signature-required"
               checked={signatureRequired}
@@ -173,7 +173,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
             <Label htmlFor="signature-required">Vyžadovat podpis</Label>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
               <Label>Položky</Label>
               <Button type="button" variant="outline" size="sm" onClick={addItem}>
@@ -184,7 +184,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
             
             {items.map((item, index) => (
               <div key={index} className="grid grid-cols-4 gap-2 items-end">
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label>Název</Label>
                   <Input
                     value={item.name}
@@ -192,7 +192,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
                     placeholder="Název položky"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label>Množství</Label>
                   <Input
                     type="number"
@@ -201,7 +201,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
                     placeholder="Množství"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label>Jednotka</Label>
                   <Select
                     value={item.unit}
@@ -230,7 +230,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
             ))}
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
