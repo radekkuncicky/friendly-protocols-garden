@@ -14,14 +14,29 @@ import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
 
+type ActivityLog = {
+  id: string;
+  created_at: string;
+  action_type: string;
+  action_description: string;
+  affected_object_type: string;
+  ip_address: string | null;
+  device_info: string | null;
+  details: any;
+  profiles: {
+    full_name: string | null;
+    email: string;
+  } | null;
+}
+
 export const UserActivityLog = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | null>(null);
-  const [selectedLog, setSelectedLog] = useState<any>(null);
+  const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
 
-  const { data: logs, isLoading } = useQuery({
+  const { data: logs, isLoading } = useQuery<ActivityLog[]>({
     queryKey: ["activity-logs", searchQuery, selectedAction, selectedUser, dateRange],
     queryFn: async () => {
       let query = supabase
