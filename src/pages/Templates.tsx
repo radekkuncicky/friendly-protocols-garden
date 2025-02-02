@@ -82,11 +82,12 @@ const Templates = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <TemplatesHeader
+        <TemplatesHeader userRole={userRole} onCreateClick={() => setIsCreateOpen(true)} />
+        <TemplatesSearch 
+          onSearch={setSearchQuery} 
           userRole={userRole}
           onCreateClick={() => setIsCreateOpen(true)}
         />
-        <TemplatesSearch onSearch={setSearchQuery} />
       </div>
 
       <TemplateTabs
