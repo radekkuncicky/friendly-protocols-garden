@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { cs } from "date-fns/locale";
 import { Calendar, Download, Filter, History, Search, User, X } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
+import { Database } from "@/integrations/supabase/types";
 
 type ActivityLog = {
   id: string;
@@ -23,6 +23,7 @@ type ActivityLog = {
   ip_address: string | null;
   device_info: string | null;
   details: any;
+  user_id: string | null;
   profiles: {
     full_name: string | null;
     email: string;
@@ -70,8 +71,9 @@ export const UserActivityLog = () => {
       }
 
       const { data, error } = await query;
+      
       if (error) throw error;
-      return data;
+      return data as ActivityLog[];
     },
   });
 
