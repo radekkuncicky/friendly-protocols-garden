@@ -9,6 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Template {
   id: string;
@@ -29,6 +35,7 @@ interface TemplateCardProps {
   onDuplicate: (template: Template) => void;
   onToggleLock: (template: Template) => void;
   onDelete: (template: Template) => void;
+  onStatusChange?: (template: Template, newStatus: 'draft' | 'published') => void;
 }
 
 export const TemplateCard = ({
@@ -39,7 +46,10 @@ export const TemplateCard = ({
   onDuplicate,
   onToggleLock,
   onDelete,
+  onStatusChange,
 }: TemplateCardProps) => {
+  const canChangeStatus = userRole === 'admin' || userRole === 'manager';
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -57,13 +67,32 @@ export const TemplateCard = ({
                 Uzamčeno
               </Badge>
             )}
-            <Badge 
-              variant={template.status === 'published' ? "default" : "secondary"}
-              className="flex items-center gap-1"
-            >
-              <FileText className="h-3 w-3" />
-              {template.status === 'published' ? 'Publikováno' : 'Koncept'}
-            </Badge>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge 
+                    variant={template.status === 'published' ? "default" : "secondary"}
+                    className="flex items-center gap-1 cursor-pointer"
+                    onClick={() => {
+                      if (canChangeStatus && onStatusChange) {
+                        onStatusChange(
+                          template, 
+                          template.status === 'published' ? 'draft' : 'published'
+                        );
+                      }
+                    }}
+                  >
+                    <FileText className="h-3 w-3" />
+                    {template.status === 'published' ? 'Publikováno' : 'Koncept'}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {canChangeStatus 
+                    ? 'Kliknutím změníte stav šablony'
+                    : 'Nemáte oprávnění měnit stav šablony'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </CardHeader>

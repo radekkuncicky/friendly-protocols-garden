@@ -53,7 +53,40 @@ const Templates = () => {
     fetchUserRole();
   }, []);
 
-  // Fetch templates with better error handling
+  // Add new mutation for status changes
+  const statusMutation = useMutation({
+    mutationFn: async ({ template, newStatus }: { template: Template; newStatus: 'draft' | 'published' }) => {
+      const { data, error } = await supabase
+        .from("templates")
+        .update({ status: newStatus })
+        .eq("id", template.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast({
+        title: "Status šablony byl změněn",
+        description: "Změna byla úspěšně uložena.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Chyba při změně statusu",
+        description: "Nepodařilo se změnit status šablony: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle status change
+  const handleStatusChange = (template: Template, newStatus: 'draft' | 'published') => {
+    statusMutation.mutate({ template, newStatus });
+  };
+
   const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
@@ -233,6 +266,7 @@ const Templates = () => {
                       isLocked: template.is_locked || false
                     })}
                     onDelete={() => handleDelete(template)}
+                    onStatusChange={handleStatusChange}
                   />
                 ))}
             </div>
