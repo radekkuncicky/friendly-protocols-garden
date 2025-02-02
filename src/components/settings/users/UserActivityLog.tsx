@@ -74,7 +74,6 @@ export const UserActivityLog = () => {
       
       if (error) throw error;
       
-      // Transform the data to match our ActivityLog type
       return (data as any[]).map(item => ({
         ...item,
         profiles: item.profiles || null
@@ -139,12 +138,12 @@ export const UserActivityLog = () => {
             value={dateRange}
             onChange={(newDateRange: DateRange | null) => setDateRange(newDateRange)}
           />
-          <Select value={selectedAction || ""} onValueChange={setSelectedAction}>
+          <Select value={selectedAction || "all"} onValueChange={(value) => setSelectedAction(value === "all" ? null : value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrovat dle akce" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Všechny akce</SelectItem>
+              <SelectItem value="all">Všechny akce</SelectItem>
               <SelectItem value="create">Vytvoření</SelectItem>
               <SelectItem value="update">Úprava</SelectItem>
               <SelectItem value="delete">Smazání</SelectItem>
