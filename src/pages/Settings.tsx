@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CompanyInfoForm, type CompanyInfoFormValues } from "@/components/settings/CompanyInfoForm";
 import { LogoUpload } from "@/components/settings/LogoUpload";
 import { UserRolesTab } from "@/components/settings/users/UserRolesTab";
+import { AppearanceTab } from "@/components/settings/appearance/AppearanceTab";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -135,16 +136,7 @@ const Settings = () => {
         </TabsContent>
 
         <TabsContent value="appearance">
-          <Card>
-            <CardHeader>
-              <CardTitle>Vzhled aplikace</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Nastavení vzhledu bude implementováno v další fázi.
-              </p>
-            </CardContent>
-          </Card>
+          <AppearanceTab />
         </TabsContent>
 
         <TabsContent value="documents">
