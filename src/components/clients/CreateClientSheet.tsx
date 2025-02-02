@@ -20,7 +20,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
+// Define the form schema to match the database requirements
 const formSchema = z.object({
   name: z.string().min(1, "Název je povinný"),
   email: z.string().email("Neplatný email").optional().or(z.literal("")),
@@ -29,6 +31,8 @@ const formSchema = z.object({
   ico: z.string().optional(),
   dic: z.string().optional(),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface CreateClientSheetProps {
   open: boolean;
@@ -42,7 +46,7 @@ export const CreateClientSheet = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -55,10 +59,20 @@ export const CreateClientSheet = ({
   });
 
   const createMutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: FormValues) => {
+      // Convert form values to match the database schema
+      const clientData: TablesInsert<"clients"> = {
+        name: values.name, // This is required
+        email: values.email || null,
+        phone: values.phone || null,
+        address: values.address || null,
+        ico: values.ico || null,
+        dic: values.dic || null,
+      };
+
       const { data, error } = await supabase
         .from("clients")
-        .insert(values)
+        .insert(clientData)
         .select()
         .single();
 
@@ -84,7 +98,7 @@ export const CreateClientSheet = ({
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormValues) => {
     createMutation.mutate(values);
   };
 
