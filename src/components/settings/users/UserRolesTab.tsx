@@ -14,20 +14,21 @@ export const UserRolesTab = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
+      // First fetch profiles
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*");
 
       if (profilesError) throw profilesError;
 
-      // Fetch user roles separately
+      // Then fetch user roles
       const { data: userRoles, error: rolesError } = await supabase
         .from("user_roles")
         .select("*");
 
       if (rolesError) throw rolesError;
 
-      // Combine profiles with their roles
+      // Combine the data
       return profiles.map(profile => ({
         ...profile,
         user_roles: userRoles.filter(role => role.user_id === profile.id)
