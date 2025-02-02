@@ -101,10 +101,11 @@ const Settings = () => {
         .from('company-logos')
         .getPublicUrl(fileName);
 
-      // Update settings with new logo URL
+      // Update settings with new logo URL - now with proper WHERE clause
       const { error: updateError } = await supabase
         .from('settings')
         .update({ company_logo: publicUrl })
+        .eq('id', settings?.id) // Add WHERE clause to target specific settings record
         .single();
 
       if (updateError) throw updateError;
@@ -142,9 +143,12 @@ const Settings = () => {
 
   const updateMutation = useMutation({
     mutationFn: async (values: SettingsFormValues) => {
+      if (!settings?.id) throw new Error("No settings record found");
+      
       const { data, error } = await supabase
         .from("settings")
-        .upsert(values)
+        .update(values)
+        .eq('id', settings.id) // Add WHERE clause here too
         .select()
         .single();
 
