@@ -1,6 +1,3 @@
-import { Eye, Send, Download, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -9,7 +6,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Clock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { StatusBadge } from "./StatusBadge";
+import { ProtocolActions } from "./ProtocolActions";
 
 interface Protocol {
   id: string;
@@ -31,34 +29,6 @@ interface ProtocolsTableProps {
 }
 
 export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "draft":
-        return (
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            Rozpracováno
-          </Badge>
-        );
-      case "sent":
-        return (
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <AlertCircle className="h-3 w-3" />
-            Odesláno
-          </Badge>
-        );
-      case "completed":
-        return (
-          <Badge variant="default" className="flex items-center gap-1">
-            <CheckCircle2 className="h-3 w-3" />
-            Dokončeno
-          </Badge>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="rounded-md border">
       <Table>
@@ -79,7 +49,9 @@ export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => 
                 {protocol.protocol_number}
               </TableCell>
               <TableCell>{protocol.clients?.name || "—"}</TableCell>
-              <TableCell>{getStatusBadge(protocol.status)}</TableCell>
+              <TableCell>
+                <StatusBadge status={protocol.status} />
+              </TableCell>
               <TableCell>
                 {new Date(protocol.created_at).toLocaleDateString("cs-CZ")}
               </TableCell>
@@ -87,22 +59,7 @@ export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => 
                 {new Date(protocol.updated_at).toLocaleDateString("cs-CZ")}
               </TableCell>
               <TableCell>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="icon">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Send className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  {(userRole === "admin" || userRole === "manager") && (
-                    <Button variant="destructive" size="icon">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
+                <ProtocolActions userRole={userRole} />
               </TableCell>
             </TableRow>
           ))}
