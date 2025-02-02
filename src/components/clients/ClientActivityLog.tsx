@@ -15,7 +15,7 @@ export const ClientActivityLog = ({ clientId }: ClientActivityLogProps) => {
         .from("client_activity_logs")
         .select(`
           *,
-          profiles!client_activity_logs_user_id_fkey(full_name)
+          profiles:user_id (full_name)
         `)
         .eq("client_id", clientId)
         .order("created_at", { ascending: false });

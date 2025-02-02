@@ -35,7 +35,7 @@ export const ClientDetailSheet = ({
         .select(`
           *,
           protocols:protocols(count),
-          profiles!clients_created_by_fkey(full_name)
+          profiles:created_by (full_name)
         `)
         .eq("id", clientId)
         .single();
