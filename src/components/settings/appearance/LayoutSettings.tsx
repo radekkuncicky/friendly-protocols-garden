@@ -6,20 +6,6 @@ export const LayoutSettings = () => {
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <Label>Pozice postranního panelu</Label>
-        <RadioGroup defaultValue="left" className="grid gap-4">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="left" id="left" />
-            <Label htmlFor="left">Vlevo</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="right" id="right" />
-            <Label htmlFor="right">Vpravo</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div className="space-y-4">
         <Label>Styl tlačítek</Label>
         <RadioGroup defaultValue="rounded" className="grid gap-4">
           <div className="flex items-center space-x-2">

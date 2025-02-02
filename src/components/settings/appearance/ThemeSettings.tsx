@@ -37,21 +37,7 @@ export const ThemeSettings = () => {
 
       <div className="space-y-4">
         <Label>Primární barva</Label>
-        <RadioGroup defaultValue="purple" className="grid grid-cols-3 gap-4">
-          <div>
-            <RadioGroupItem
-              value="purple"
-              id="purple"
-              className="peer sr-only"
-            />
-            <Label
-              htmlFor="purple"
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-purple-100 p-4 hover:bg-purple-200 peer-data-[state=checked]:border-purple-500 cursor-pointer"
-            >
-              <span className="w-8 h-8 rounded-full bg-purple-500" />
-              <span className="mt-2">Fialová</span>
-            </Label>
-          </div>
+        <RadioGroup defaultValue="blue" className="grid grid-cols-3 gap-4">
           <div>
             <RadioGroupItem
               value="blue"
@@ -60,10 +46,24 @@ export const ThemeSettings = () => {
             />
             <Label
               htmlFor="blue"
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-blue-100 p-4 hover:bg-blue-200 peer-data-[state=checked]:border-blue-500 cursor-pointer"
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-blue-100 p-4 hover:bg-blue-200 peer-data-[state=checked]:border-blue-500 cursor-pointer dark:bg-blue-900/20 dark:hover:bg-blue-900/30"
             >
-              <span className="w-8 h-8 rounded-full bg-blue-500" />
+              <span className="w-8 h-8 rounded-full bg-blue-600" />
               <span className="mt-2">Modrá</span>
+            </Label>
+          </div>
+          <div>
+            <RadioGroupItem
+              value="purple"
+              id="purple"
+              className="peer sr-only"
+            />
+            <Label
+              htmlFor="purple"
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-purple-100 p-4 hover:bg-purple-200 peer-data-[state=checked]:border-purple-500 cursor-pointer dark:bg-purple-900/20 dark:hover:bg-purple-900/30"
+            >
+              <span className="w-8 h-8 rounded-full bg-purple-600" />
+              <span className="mt-2">Fialová</span>
             </Label>
           </div>
           <div>
@@ -74,9 +74,9 @@ export const ThemeSettings = () => {
             />
             <Label
               htmlFor="green"
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-green-100 p-4 hover:bg-green-200 peer-data-[state=checked]:border-green-500 cursor-pointer"
+              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-green-100 p-4 hover:bg-green-200 peer-data-[state=checked]:border-green-500 cursor-pointer dark:bg-green-900/20 dark:hover:bg-green-900/30"
             >
-              <span className="w-8 h-8 rounded-full bg-green-500" />
+              <span className="w-8 h-8 rounded-full bg-green-600" />
               <span className="mt-2">Zelená</span>
             </Label>
           </div>
