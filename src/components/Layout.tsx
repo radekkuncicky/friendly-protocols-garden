@@ -7,7 +7,7 @@ import {
   FileText,
   Settings,
   LogOut,
-  Templates,
+  LayoutTemplate,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -105,7 +105,7 @@ const Layout = () => {
               variant="ghost"
               className="w-full justify-start text-white hover:text-white hover:bg-gray-700"
             >
-              <Templates className="mr-2" />
+              <LayoutTemplate className="mr-2" />
               Šablony
             </Button>
           </Link>
