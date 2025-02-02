@@ -65,7 +65,7 @@ export const TemplateItemsList = ({ items, setItems }: TemplateItemsListProps) =
           </Button>
         </AccordionTrigger>
         <AccordionContent>
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3 pt-2 max-h-[400px] overflow-y-auto">
             {items.map((item, index) => (
               <div key={index} className="grid grid-cols-4 gap-2 items-end">
                 <div className="space-y-1.5">
