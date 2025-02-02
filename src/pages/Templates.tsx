@@ -26,7 +26,6 @@ type Template = {
   content: any;
   category?: string;
   is_locked?: boolean;
-  version?: number;
   created_at: string;
   created_by: string | null;
 };
@@ -128,12 +127,14 @@ const Templates = () => {
   // Duplicate template mutation
   const duplicateMutation = useMutation({
     mutationFn: async (template: Template) => {
-      const { data: session } = await supabase.auth.getSession();
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session?.user?.id) throw new Error("No user session");
+      
       const { error } = await supabase.from("templates").insert({
         name: `${template.name} (kopie)`,
         content: template.content,
         category: template.category,
-        created_by: session?.user?.id,
+        created_by: sessionData.session.user.id,
       });
       if (error) throw error;
     },

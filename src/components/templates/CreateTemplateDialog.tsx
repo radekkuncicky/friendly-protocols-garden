@@ -29,7 +29,9 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { data: session } = await supabase.auth.getSession();
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session?.user?.id) throw new Error("No user session");
+      
       const { error } = await supabase.from("templates").insert({
         name,
         content: {
@@ -37,7 +39,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
           fields: [],
         },
         category,
-        created_by: session?.user?.id,
+        created_by: sessionData.session.user.id,
       });
       if (error) throw error;
     },
