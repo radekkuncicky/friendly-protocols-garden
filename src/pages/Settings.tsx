@@ -38,7 +38,6 @@ const Settings = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Fetch current settings
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => {
@@ -81,6 +80,51 @@ const Settings = () => {
       });
     }
   }, [userRole, navigate, toast]);
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('company-logos')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-logos')
+        .getPublicUrl(fileName);
+
+      // Update settings with new logo URL
+      const { error: updateError } = await supabase
+        .from('settings')
+        .update({ company_logo: publicUrl })
+        .single();
+
+      if (updateError) throw updateError;
+
+      // Invalidate settings query to refresh data
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+
+      toast({
+        title: "Logo nahráno",
+        description: "Logo společnosti bylo úspěšně aktualizováno.",
+      });
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast({
+        title: "Chyba při nahrávání",
+        description: "Nepodařilo se nahrát logo. Zkuste to prosím znovu.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsFormSchema),
@@ -126,10 +170,6 @@ const Settings = () => {
   const onSubmit = (values: SettingsFormValues) => {
     updateMutation.mutate(values);
   };
-
-  if (isLoading) {
-    return <div>Načítání...</div>;
-  }
 
   return (
     <div className="container mx-auto py-8">
@@ -246,10 +286,30 @@ const Settings = () => {
                           Nahrajte logo společnosti pro použití v protokolech
                         </p>
                       </div>
-                      <Button type="button" variant="outline">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Nahrát logo
-                      </Button>
+                      <div className="flex items-center gap-4">
+                        {settings?.company_logo && (
+                          <img
+                            src={settings.company_logo}
+                            alt="Company logo"
+                            className="h-10 w-auto object-contain"
+                          />
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('logo-upload')?.click()}
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          Nahrát logo
+                        </Button>
+                        <input
+                          id="logo-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleLogoUpload}
+                        />
+                      </div>
                     </div>
                     <Separator />
                   </div>
