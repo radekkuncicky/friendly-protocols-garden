@@ -16,6 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 interface EditRoleDialogProps {
   user: any;
@@ -30,8 +33,8 @@ export const EditRoleDialog = ({
 }: EditRoleDialogProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedRole, setSelectedRole] = useState(
-    user?.user_roles?.[0]?.role || "worker"
+  const [selectedRole, setSelectedRole] = useState<AppRole>(
+    (user?.user_roles?.[0]?.role as AppRole) || "worker"
   );
 
   const updateRoleMutation = useMutation({
@@ -40,7 +43,7 @@ export const EditRoleDialog = ({
       role,
     }: {
       userId: string;
-      role: string;
+      role: AppRole;
     }) => {
       // First, delete existing role
       const { error: deleteError } = await supabase
@@ -53,7 +56,7 @@ export const EditRoleDialog = ({
       // Then insert new role
       const { error: insertError } = await supabase
         .from("user_roles")
-        .insert([{ user_id: userId, role }]);
+        .insert({ user_id: userId, role });
 
       if (insertError) throw insertError;
     },
@@ -96,7 +99,7 @@ export const EditRoleDialog = ({
             <label className="text-sm font-medium">Role</label>
             <Select
               value={selectedRole}
-              onValueChange={setSelectedRole}
+              onValueChange={(value: AppRole) => setSelectedRole(value)}
             >
               <SelectTrigger>
                 <SelectValue />

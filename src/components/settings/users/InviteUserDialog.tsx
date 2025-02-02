@@ -17,6 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 interface InviteUserDialogProps {
   open: boolean;
@@ -29,10 +32,10 @@ export const InviteUserDialog = ({
 }: InviteUserDialogProps) => {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("worker");
+  const [role, setRole] = useState<AppRole>("worker");
 
   const inviteUserMutation = useMutation({
-    mutationFn: async ({ email, role }: { email: string; role: string }) => {
+    mutationFn: async ({ email, role }: { email: string; role: AppRole }) => {
       const { data, error } = await supabase.auth.admin.inviteUserByEmail(email);
       if (error) throw error;
 
@@ -40,7 +43,7 @@ export const InviteUserDialog = ({
       if (data?.user?.id) {
         const { error: roleError } = await supabase
           .from("user_roles")
-          .insert([{ user_id: data.user.id, role }]);
+          .insert({ user_id: data.user.id, role });
 
         if (roleError) throw roleError;
       }
@@ -91,7 +94,7 @@ export const InviteUserDialog = ({
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Role</label>
-            <Select value={role} onValueChange={setRole}>
+            <Select value={role} onValueChange={(value: AppRole) => setRole(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

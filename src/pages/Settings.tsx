@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,34 +12,92 @@ import { UserRolesTab } from "@/components/settings/users/UserRolesTab";
 const Settings = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [currentLogo, setCurrentLogo] = useState<string | null>(null);
 
-  const { data: userRole } = useQuery({
-    queryKey: ["userRole"],
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
       const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
+        .from("settings")
+        .select("*")
         .single();
 
       if (error) throw error;
-      return data?.role;
+      return data;
     },
   });
 
-  useEffect(() => {
-    if (userRole && userRole !== "admin") {
-      navigate("/");
+  const updateMutation = useMutation({
+    mutationFn: async (values: CompanyInfoFormValues) => {
+      if (!settings?.id) return;
+      
+      const { error } = await supabase
+        .from("settings")
+        .update(values)
+        .eq('id', settings.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
       toast({
-        title: "Přístup odepřen",
-        description: "Pouze administrátoři mají přístup k nastavení.",
+        title: "Nastavení uloženo",
+        description: "Změny byly úspěšně uloženy.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Chyba",
+        description: "Nepodařilo se uložit změny: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || !event.target.files[0] || !settings?.id) return;
+
+    const file = event.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('company-logos')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-logos')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('settings')
+        .update({ company_logo: publicUrl })
+        .eq('id', settings.id);
+
+      if (updateError) throw updateError;
+
+      setCurrentLogo(publicUrl);
+      toast({
+        title: "Logo nahráno",
+        description: "Logo bylo úspěšně nahráno.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Chyba",
+        description: "Nepodařilo se nahrát logo: " + error.message,
         variant: "destructive",
       });
     }
-  }, [userRole, navigate, toast]);
+  };
+
+  useEffect(() => {
+    if (settings?.company_logo) {
+      setCurrentLogo(settings.company_logo);
+    }
+  }, [settings?.company_logo]);
 
   return (
     <div className="container mx-auto py-8">
@@ -59,8 +117,15 @@ const Settings = () => {
               <CardTitle>Firemní údaje</CardTitle>
             </CardHeader>
             <CardContent>
-              <CompanyInfoForm />
-              <LogoUpload />
+              <CompanyInfoForm 
+                defaultValues={settings}
+                onSubmit={(values) => updateMutation.mutate(values)}
+                isSubmitting={updateMutation.isPending}
+              />
+              <LogoUpload 
+                currentLogo={currentLogo}
+                onUpload={handleLogoUpload}
+              />
             </CardContent>
           </Card>
         </TabsContent>

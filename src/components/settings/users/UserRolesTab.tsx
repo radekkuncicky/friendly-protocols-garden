@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { UserPlus, MoreVertical } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,15 +16,22 @@ export const UserRolesTab = () => {
     queryFn: async () => {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select(`
-          *,
-          user_roles (
-            role
-          )
-        `);
+        .select("*");
 
       if (profilesError) throw profilesError;
-      return profiles;
+
+      // Fetch user roles separately
+      const { data: userRoles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("*");
+
+      if (rolesError) throw rolesError;
+
+      // Combine profiles with their roles
+      return profiles.map(profile => ({
+        ...profile,
+        user_roles: userRoles.filter(role => role.user_id === profile.id)
+      }));
     },
   });
 
