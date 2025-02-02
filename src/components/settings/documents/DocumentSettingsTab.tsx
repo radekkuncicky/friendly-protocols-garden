@@ -1,7 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DocumentSettingsContent } from "./DocumentSettingsContent";
 import { DocumentPreview } from "./DocumentPreview";
 
@@ -56,14 +55,7 @@ export function DocumentSettingsTab() {
         onUpdate={(values) => updateMutation.mutate(values)} 
       />
       <div className="sticky top-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Náhled dokumentu</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <DocumentPreview settings={settings} />
-          </CardContent>
-        </Card>
+        <DocumentPreview settings={settings} />
       </div>
     </div>
   );

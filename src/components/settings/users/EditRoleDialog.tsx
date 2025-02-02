@@ -8,14 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { RoleSelect } from "./RoleSelect";
+import { DialogActions } from "./DialogActions";
 import { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -45,7 +39,6 @@ export const EditRoleDialog = ({
       userId: string;
       role: AppRole;
     }) => {
-      // First, delete existing role
       const { error: deleteError } = await supabase
         .from("user_roles")
         .delete()
@@ -53,7 +46,6 @@ export const EditRoleDialog = ({
 
       if (deleteError) throw deleteError;
 
-      // Then insert new role
       const { error: insertError } = await supabase
         .from("user_roles")
         .insert({ user_id: userId, role });
@@ -95,38 +87,11 @@ export const EditRoleDialog = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Role</label>
-            <Select
-              value={selectedRole}
-              onValueChange={(value: AppRole) => setSelectedRole(value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
-                <SelectItem value="worker">Worker</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Zrušit
-            </Button>
-            <Button
-              type="submit"
-              disabled={updateRoleMutation.isPending}
-            >
-              Uložit
-            </Button>
-          </div>
+          <RoleSelect value={selectedRole} onChange={setSelectedRole} />
+          <DialogActions
+            onCancel={() => onOpenChange(false)}
+            isSubmitting={updateRoleMutation.isPending}
+          />
         </form>
       </DialogContent>
     </Dialog>
