@@ -73,7 +73,12 @@ export const UserActivityLog = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      return data as ActivityLog[];
+      
+      // Transform the data to match our ActivityLog type
+      return (data as any[]).map(item => ({
+        ...item,
+        profiles: item.profiles || null
+      })) as ActivityLog[];
     },
   });
 
