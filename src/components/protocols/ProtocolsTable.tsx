@@ -59,7 +59,11 @@ export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => 
                 {new Date(protocol.updated_at).toLocaleDateString("cs-CZ")}
               </TableCell>
               <TableCell>
-                <ProtocolActions userRole={userRole} />
+                <ProtocolActions 
+                  userRole={userRole} 
+                  protocolId={protocol.id}
+                  status={protocol.status}
+                />
               </TableCell>
             </TableRow>
           ))}
