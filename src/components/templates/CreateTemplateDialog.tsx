@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2 } from "lucide-react";
 import {
   Select,
@@ -15,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Json } from "@/integrations/supabase/types";
 
 interface CreateTemplateDialogProps {
   open: boolean;
@@ -35,29 +35,40 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Obecné");
   const [items, setItems] = useState<TemplateItem[]>([]);
+  const [signatureRequired, setSignatureRequired] = useState(true);
 
   const createMutation = useMutation({
     mutationFn: async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session?.user?.id) throw new Error("No user session");
       
-      // Convert the content to a format that matches the Json type
-      const templateContent: Json = {
+      const templateContent = {
         description,
         items: items.map(item => ({
           name: item.name,
           quantity: item.quantity,
           unit: item.unit
         })),
-        fields: []
+        header: {
+          show_logo: true,
+          show_title: true,
+          show_page_numbers: true
+        },
+        footer: {
+          show_contact: true,
+          show_disclaimer: false
+        }
       };
       
       const { error } = await supabase.from("templates").insert({
         name,
         content: templateContent,
         category,
+        signature_required: signatureRequired,
+        status: 'draft',
         created_by: sessionData.session.user.id,
       });
+      
       if (error) throw error;
     },
     onSuccess: () => {
@@ -71,6 +82,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
       setDescription("");
       setCategory("Obecné");
       setItems([]);
+      setSignatureRequired(true);
     },
     onError: (error) => {
       toast({
@@ -150,6 +162,15 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Zadejte popis šablony"
             />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="signature-required"
+              checked={signatureRequired}
+              onCheckedChange={setSignatureRequired}
+            />
+            <Label htmlFor="signature-required">Vyžadovat podpis</Label>
           </div>
 
           <div className="space-y-4">

@@ -1,4 +1,4 @@
-import { Lock, Unlock, Edit, Eye, Copy, Trash2 } from "lucide-react";
+import { Lock, Unlock, Edit, Eye, Copy, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,6 +16,8 @@ interface Template {
   content: any;
   category?: string;
   is_locked?: boolean;
+  status: 'draft' | 'published';
+  signature_required: boolean;
   created_at: string;
 }
 
@@ -48,18 +50,32 @@ export const TemplateCard = ({
               Vytvořeno: {new Date(template.created_at).toLocaleDateString("cs-CZ")}
             </CardDescription>
           </div>
-          {template.is_locked && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Lock className="h-3 w-3" />
-              Uzamčeno
+          <div className="flex gap-2">
+            {template.is_locked && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Lock className="h-3 w-3" />
+                Uzamčeno
+              </Badge>
+            )}
+            <Badge 
+              variant={template.status === 'published' ? "default" : "secondary"}
+              className="flex items-center gap-1"
+            >
+              <FileText className="h-3 w-3" />
+              {template.status === 'published' ? 'Publikováno' : 'Koncept'}
             </Badge>
-          )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
           {template.content.description || "Bez popisu"}
         </p>
+        {template.signature_required && (
+          <Badge variant="outline" className="mt-2">
+            Vyžaduje podpis
+          </Badge>
+        )}
       </CardContent>
       <CardFooter className="flex justify-between mt-auto">
         <div className="flex gap-2">
