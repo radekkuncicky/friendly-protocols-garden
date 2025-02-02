@@ -34,13 +34,28 @@ const Auth = () => {
           email,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          // Handle specific error cases
+          if (error.message.includes("Email not confirmed")) {
+            throw new Error("Email nebyl potvrzen. Zkontrolujte prosím svou emailovou schránku nebo se zaregistrujte znovu.");
+          }
+          throw error;
+        }
         navigate("/");
       }
     } catch (error: any) {
+      let errorMessage = error.message;
+      
+      // Map common error messages to user-friendly Czech translations
+      if (errorMessage.includes("Invalid login credentials")) {
+        errorMessage = "Nesprávné přihlašovací údaje";
+      } else if (errorMessage.includes("User already registered")) {
+        errorMessage = "Uživatel s tímto emailem již existuje";
+      }
+
       toast({
         title: "Chyba",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
