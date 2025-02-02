@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PlusCircle, Copy, Lock, Unlock, Trash2, Edit, Eye } from "lucide-react";
+import { 
+  PlusCircle, 
+  Copy, 
+  Lock, 
+  Unlock, 
+  Trash2, 
+  Edit, 
+  Eye,
+  Search,
+  Filter
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -16,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import CreateTemplateDialog from "@/components/templates/CreateTemplateDialog";
 import EditTemplateDialog from "@/components/templates/EditTemplateDialog";
 import PreviewTemplateDialog from "@/components/templates/PreviewTemplateDialog";
@@ -230,12 +241,31 @@ const Templates = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Šablony</h1>
-        {(userRole === "admin" || userRole === "manager") && (
-          <Button onClick={() => setIsCreateOpen(true)}>
-            <PlusCircle className="mr-2" />
-            Nová šablona
-          </Button>
-        )}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Hledat šablony..."
+              className="w-64"
+              type="search"
+              onChange={(e) => {
+                // Search functionality will be implemented later
+                console.log("Search:", e.target.value);
+              }}
+            />
+            <Button variant="outline" size="icon">
+              <Search className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon">
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
+          {(userRole === "admin" || userRole === "manager") && (
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Nová šablona
+            </Button>
+          )}
+        </div>
       </div>
 
       <Tabs defaultValue={categories[0]} className="w-full">
@@ -255,18 +285,18 @@ const Templates = () => {
               {templates
                 ?.filter((t) => (t.category || "Obecné") === category)
                 .map((template) => (
-                  <Card key={template.id}>
+                  <Card key={template.id} className="flex flex-col">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle>{template.name}</CardTitle>
+                          <CardTitle className="text-lg">{template.name}</CardTitle>
                           <CardDescription>
                             Vytvořeno: {new Date(template.created_at).toLocaleDateString("cs-CZ")}
                           </CardDescription>
                         </div>
                         {template.is_locked && (
-                          <Badge variant="secondary">
-                            <Lock className="h-3 w-3 mr-1" />
+                          <Badge variant="secondary" className="flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
                             Uzamčeno
                           </Badge>
                         )}
@@ -277,7 +307,7 @@ const Templates = () => {
                         {template.content.description || "Bez popisu"}
                       </p>
                     </CardContent>
-                    <CardFooter className="flex justify-between">
+                    <CardFooter className="flex justify-between mt-auto">
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
