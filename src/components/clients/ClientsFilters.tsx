@@ -1,5 +1,4 @@
-import { Search, SlidersHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -14,6 +13,8 @@ interface ClientsFiltersProps {
   setSearchQuery: (query: string) => void;
   sortBy: string;
   setSortBy: (sort: string) => void;
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
 }
 
 export const ClientsFilters = ({
@@ -21,32 +22,40 @@ export const ClientsFilters = ({
   setSearchQuery,
   sortBy,
   setSortBy,
+  statusFilter,
+  setStatusFilter,
 }: ClientsFiltersProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
-      <div className="flex-1 flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Hledat podle jména, emailu nebo IČO..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div className="relative flex-1">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Hledat klienty..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-8"
+        />
       </div>
-      <div className="flex gap-2">
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Řadit podle" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="created_at">Datum vytvoření</SelectItem>
-            <SelectItem value="name">Název</SelectItem>
-            <SelectItem value="protocols">Počet protokolů</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Všechny statusy" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Všechny statusy</SelectItem>
+          <SelectItem value="active">Aktivní</SelectItem>
+          <SelectItem value="inactive">Neaktivní</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={sortBy} onValueChange={setSortBy}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="created_at">Nejnovější</SelectItem>
+          <SelectItem value="name">Podle názvu</SelectItem>
+          <SelectItem value="protocols">Podle protokolů</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 };

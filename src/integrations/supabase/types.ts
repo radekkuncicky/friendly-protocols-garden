@@ -48,6 +48,44 @@ export type Database = {
         }
         Relationships: []
       }
+      client_activity_logs: {
+        Row: {
+          action_type: string
+          client_id: string | null
+          created_at: string | null
+          description: string
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          client_id?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          client_id?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_activity_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
@@ -57,8 +95,10 @@ export type Database = {
           email: string | null
           ico: string | null
           id: string
+          last_interaction_date: string | null
           name: string
           phone: string | null
+          status: string
           updated_at: string
         }
         Insert: {
@@ -69,8 +109,10 @@ export type Database = {
           email?: string | null
           ico?: string | null
           id?: string
+          last_interaction_date?: string | null
           name: string
           phone?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -81,8 +123,10 @@ export type Database = {
           email?: string | null
           ico?: string | null
           id?: string
+          last_interaction_date?: string | null
           name?: string
           phone?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: []

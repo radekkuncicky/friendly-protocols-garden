@@ -10,6 +10,7 @@ import { CreateClientSheet } from "@/components/clients/CreateClientSheet";
 const Clients = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("created_at");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showCreateClient, setShowCreateClient] = useState(false);
 
   const { data: clients, isLoading } = useQuery({
@@ -27,11 +28,17 @@ const Clients = () => {
     },
   });
 
-  const filteredClients = clients?.filter((client) =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.ico?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = clients?.filter((client) => {
+    const matchesSearch =
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.ico?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || client.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   const sortedClients = filteredClients?.sort((a, b) => {
     switch (sortBy) {
@@ -73,6 +80,8 @@ const Clients = () => {
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
       />
 
       <ClientsTable clients={sortedClients || []} />
