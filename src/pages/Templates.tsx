@@ -59,7 +59,7 @@ const Templates = () => {
   }, []);
 
   // Fetch templates
-  const { data: templates, isLoading } = useQuery({
+  const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -67,7 +67,10 @@ const Templates = () => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching templates:", error);
+        throw error;
+      }
       return data as Template[];
     },
   });
@@ -124,7 +127,6 @@ const Templates = () => {
     },
   });
 
-  // Duplicate template mutation
   const duplicateMutation = useMutation({
     mutationFn: async (template: Template) => {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -176,7 +178,10 @@ const Templates = () => {
       });
       return;
     }
-    toggleLockMutation.mutate({ id: template.id, isLocked: template.is_locked || false });
+    toggleLockMutation.mutate({ 
+      id: template.id, 
+      isLocked: template.is_locked || false 
+    });
   };
 
   const handleDuplicate = (template: Template) => {
@@ -205,6 +210,16 @@ const Templates = () => {
             </Card>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("Templates error:", error);
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <h1 className="text-2xl font-bold text-red-500">Chyba při načítání šablon</h1>
+        <p className="text-gray-600">Zkuste to prosím později nebo kontaktujte podporu.</p>
       </div>
     );
   }
