@@ -240,16 +240,20 @@ export type Database = {
           id: string
           is_locked: boolean | null
           name: string
+          signature_required: boolean
+          status: string
           updated_at: string
         }
         Insert: {
           category?: string | null
-          content: Json
+          content?: Json
           created_at?: string
           created_by?: string | null
           id?: string
           is_locked?: boolean | null
           name: string
+          signature_required?: boolean
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -260,6 +264,8 @@ export type Database = {
           id?: string
           is_locked?: boolean | null
           name?: string
+          signature_required?: boolean
+          status?: string
           updated_at?: string
         }
         Relationships: []
