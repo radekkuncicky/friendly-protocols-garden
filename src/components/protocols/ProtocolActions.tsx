@@ -25,6 +25,10 @@ interface ProtocolActionsProps {
     protocol_number: string;
     client_id: string | null;
     content: any;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    sent_at: string | null;
   };
 }
 
