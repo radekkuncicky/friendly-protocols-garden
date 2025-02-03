@@ -11,6 +11,7 @@ interface ProtocolActionButtonsProps {
   onSend: () => void;
   onDownload: () => void;
   onDelete: () => void;
+  clientSignature?: string | null;
 }
 
 export const ProtocolActionButtons = ({
@@ -21,8 +22,10 @@ export const ProtocolActionButtons = ({
   onSend,
   onDownload,
   onDelete,
+  clientSignature,
 }: ProtocolActionButtonsProps) => {
-  const isEditable = status !== 'completed';
+  const isEditable = !clientSignature && status !== 'completed';
+  const canBeSent = status !== 'completed' && status !== 'sent';
 
   return (
     <div className="flex justify-end gap-2">
@@ -50,7 +53,11 @@ export const ProtocolActionButtons = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {isEditable ? 'Upravit protokol' : 'Protokol nelze upravit - je již podepsán'}
+            {clientSignature 
+              ? 'Protokol nelze upravit - je již podepsán klientem'
+              : isEditable 
+                ? 'Upravit protokol' 
+                : 'Protokol nelze upravit - je již dokončen'}
           </TooltipContent>
         </Tooltip>
 
@@ -60,13 +67,17 @@ export const ProtocolActionButtons = ({
               variant="outline" 
               size="icon" 
               onClick={onSend}
-              disabled={status === 'sent' || status === 'completed'}
+              disabled={!canBeSent}
             >
               <Send className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {status === 'sent' ? 'Protokol již byl odeslán' : 'Odeslat protokol'}
+            {status === 'sent' 
+              ? 'Protokol již byl odeslán'
+              : status === 'completed'
+                ? 'Dokončený protokol nelze odeslat'
+                : 'Odeslat protokol'}
           </TooltipContent>
         </Tooltip>
 

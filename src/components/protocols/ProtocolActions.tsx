@@ -12,13 +12,15 @@ interface ProtocolActionsProps {
   protocolId: string;
   status: Protocol['status'];
   protocol: Protocol;
+  clientSignature?: string | null;
 }
 
 export const ProtocolActions = ({ 
   userRole, 
   protocolId, 
   status, 
-  protocol 
+  protocol,
+  clientSignature
 }: ProtocolActionsProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -37,16 +39,16 @@ export const ProtocolActions = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['protocols'] });
       toast({
-        title: "Protocol deleted",
-        description: "Protocol has been deleted successfully.",
+        title: "Protokol smazán",
+        description: "Protokol byl úspěšně smazán.",
       });
       setShowDeleteDialog(false);
     },
     onError: (error) => {
       console.error('Error deleting protocol:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete protocol. Please try again.",
+        title: "Chyba",
+        description: "Nepodařilo se smazat protokol. Zkuste to prosím znovu.",
         variant: "destructive",
       });
       setShowDeleteDialog(false);
@@ -55,6 +57,17 @@ export const ProtocolActions = ({
 
   const sendMutation = useMutation({
     mutationFn: async () => {
+      // Check if protocol is already sent
+      const { data: currentProtocol } = await supabase
+        .from('protocols')
+        .select('status')
+        .eq('id', protocolId)
+        .single();
+
+      if (currentProtocol?.status === 'sent') {
+        throw new Error('Protocol has already been sent');
+      }
+
       const { error } = await supabase
         .from('protocols')
         .update({ 
@@ -68,15 +81,19 @@ export const ProtocolActions = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['protocols'] });
       toast({
-        title: "Protocol sent",
-        description: "Protocol has been sent successfully.",
+        title: "Protokol odeslán",
+        description: "Protokol byl úspěšně odeslán.",
       });
     },
     onError: (error) => {
       console.error('Error sending protocol:', error);
+      const errorMessage = error instanceof Error && error.message === 'Protocol has already been sent'
+        ? "Protokol již byl odeslán."
+        : "Nepodařilo se odeslat protokol. Zkuste to prosím znovu.";
+      
       toast({
-        title: "Error",
-        description: "Failed to send protocol. Please try again.",
+        title: "Chyba",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -84,20 +101,20 @@ export const ProtocolActions = ({
 
   const handleView = () => {
     toast({
-      title: "View protocol",
-      description: "Viewing protocol details (to be implemented)",
+      title: "Zobrazit protokol",
+      description: "Zobrazení detailů protokolu (bude implementováno)",
     });
   };
 
   const handleDownload = () => {
     toast({
-      title: "Download protocol",
-      description: "Downloading protocol (to be implemented)",
+      title: "Stáhnout protokol",
+      description: "Stahování protokolu (bude implementováno)",
     });
   };
 
   const handleSend = () => {
-    if (window.confirm('Are you sure you want to send this protocol?')) {
+    if (window.confirm('Opravdu chcete odeslat tento protokol?')) {
       sendMutation.mutate();
     }
   };
@@ -112,6 +129,7 @@ export const ProtocolActions = ({
         onSend={handleSend}
         onDownload={handleDownload}
         onDelete={() => setShowDeleteDialog(true)}
+        clientSignature={clientSignature}
       />
 
       <DeleteProtocolDialog
