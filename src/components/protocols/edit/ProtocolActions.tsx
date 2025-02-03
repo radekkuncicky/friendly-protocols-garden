@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ProtocolActionsProps {
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (e: React.FormEvent) => void;  // Updated to accept FormEvent
   protocol: any;
 }
 
@@ -46,7 +46,7 @@ export const ProtocolActions = ({ onClose, onSubmit, protocol }: ProtocolActions
         <Send className="h-4 w-4 mr-2" />
         Odeslat klientovi
       </Button>
-      <Button onClick={onSubmit}>
+      <Button onClick={(e) => onSubmit(e)}>  {/* Updated to pass the event */}
         <Save className="h-4 w-4 mr-2" />
         Uložit změny
       </Button>
