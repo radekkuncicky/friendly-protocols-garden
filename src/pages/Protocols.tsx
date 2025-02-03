@@ -4,20 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProtocolsHeader } from "@/components/protocols/ProtocolsHeader";
 import { ProtocolsFilters } from "@/components/protocols/ProtocolsFilters";
 import { ProtocolsTable } from "@/components/protocols/ProtocolsTable";
-
-type Protocol = {
-  id: string;
-  protocol_number: string;
-  client_id: string | null;
-  content: any;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  sent_at: string | null;
-  clients?: {
-    name: string;
-  };
-};
+import { Protocol, ProtocolContent } from "@/types/protocol";
 
 const Protocols = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -63,7 +50,14 @@ const Protocols = () => {
         throw protocolsError;
       }
 
-      return protocolsData;
+      // Transform the data to match Protocol type
+      const transformedData: Protocol[] = protocolsData.map(protocol => ({
+        ...protocol,
+        content: protocol.content as ProtocolContent,
+        status: protocol.status as Protocol['status']
+      }));
+
+      return transformedData;
     },
   });
 

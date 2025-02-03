@@ -2,10 +2,11 @@ import { format } from "date-fns";
 import { cs } from "date-fns/locale";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StatusBadge } from "../StatusBadge";
+import { Protocol } from "@/types/protocol";
 
 interface ProtocolHeaderProps {
   protocolNumber: string;
-  status: string;
+  status: Protocol['status'];
   updatedAt: string;
 }
 
