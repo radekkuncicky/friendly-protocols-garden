@@ -57,18 +57,22 @@ export const ProtocolActions = ({
 
   const sendMutation = useMutation({
     mutationFn: async () => {
-      // Check if protocol is already sent
-      const { data: currentProtocol } = await supabase
+      // First, check the current status of the protocol
+      const { data: currentProtocol, error: fetchError } = await supabase
         .from('protocols')
         .select('status')
         .eq('id', protocolId)
         .single();
 
-      if (currentProtocol?.status === 'sent') {
+      if (fetchError) throw fetchError;
+
+      // If protocol is already sent or completed, prevent sending
+      if (currentProtocol?.status === 'sent' || currentProtocol?.status === 'completed') {
         throw new Error('Protocol has already been sent');
       }
 
-      const { error } = await supabase
+      // If checks pass, proceed with sending
+      const { error: updateError } = await supabase
         .from('protocols')
         .update({ 
           status: 'sent' as const,
@@ -76,7 +80,7 @@ export const ProtocolActions = ({
         })
         .eq('id', protocolId);
       
-      if (error) throw error;
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['protocols'] });
@@ -88,7 +92,7 @@ export const ProtocolActions = ({
     onError: (error) => {
       console.error('Error sending protocol:', error);
       const errorMessage = error instanceof Error && error.message === 'Protocol has already been sent'
-        ? "Protokol již byl odeslán."
+        ? "Protokol již byl odeslán a nelze jej odeslat znovu."
         : "Nepodařilo se odeslat protokol. Zkuste to prosím znovu.";
       
       toast({
@@ -114,7 +118,7 @@ export const ProtocolActions = ({
   };
 
   const handleSend = () => {
-    if (window.confirm('Opravdu chcete odeslat tento protokol?')) {
+    if (window.confirm('Opravdu chcete odeslat tento protokol? Po odeslání již nebude možné protokol znovu odeslat.')) {
       sendMutation.mutate();
     }
   };
