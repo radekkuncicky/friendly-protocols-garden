@@ -21,6 +21,8 @@ export const generatePDF = async (protocol: any) => {
   doc.text(`Společnost: ${protocol.content.company_name || ''}`, 20, 50);
   doc.text(`Projekt: ${protocol.content.project_name || ''}`, 20, 60);
   
+  let currentY = 70;
+
   // Add items table
   if (protocol.content.items && Array.isArray(protocol.content.items)) {
     const tableData = protocol.content.items.map((item: any) => [
@@ -30,16 +32,16 @@ export const generatePDF = async (protocol: any) => {
     ]);
     
     doc.autoTable({
-      startY: 70,
+      startY: currentY,
       head: [['Popis', 'Množství', 'Jednotka']],
       body: tableData,
     });
+
+    // Update currentY to be after the table
+    currentY = (doc as any).lastAutoTable?.finalY + 20 || currentY + 20;
   }
   
   // Add signatures if present
-  const finalY = (doc as any).lastAutoTable?.finalY || 70;
-  let currentY = finalY + 20;
-  
   if (protocol.manager_signature) {
     doc.addImage(protocol.manager_signature, 'PNG', 20, currentY, 50, 30);
     doc.text('Podpis manažera', 20, currentY + 35);
