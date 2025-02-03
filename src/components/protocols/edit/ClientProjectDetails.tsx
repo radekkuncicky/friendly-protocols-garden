@@ -7,12 +7,13 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cs } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { ProtocolContent } from "@/types/protocol";
 
 interface ClientProjectDetailsProps {
-  content: any;
+  content: ProtocolContent;
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
-  setContent: (content: any) => void;
+  setContent: (content: ProtocolContent) => void;
 }
 
 export const ClientProjectDetails = ({ content, date, setDate, setContent }: ClientProjectDetailsProps) => (

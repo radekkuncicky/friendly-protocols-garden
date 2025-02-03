@@ -3,10 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { ProtocolContent, ProtocolItem } from "@/types/protocol";
 
 interface ProtocolItemsProps {
-  content: any;
-  setContent: (content: any) => void;
+  content: ProtocolContent;
+  setContent: (content: ProtocolContent) => void;
 }
 
 export const ProtocolItems = ({ content, setContent }: ProtocolItemsProps) => {
@@ -41,7 +42,7 @@ export const ProtocolItems = ({ content, setContent }: ProtocolItemsProps) => {
         <Droppable droppableId="items">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-              {(content.items || []).map((item: any, index: number) => (
+              {(content.items || []).map((item: ProtocolItem, index: number) => (
                 <Draggable key={index} draggableId={`item-${index}`} index={index}>
                   {(provided) => (
                     <div
@@ -68,7 +69,7 @@ export const ProtocolItems = ({ content, setContent }: ProtocolItemsProps) => {
                           value={item.quantity}
                           onChange={(e) => {
                             const newItems = [...(content.items || [])];
-                            newItems[index].quantity = e.target.value;
+                            newItems[index].quantity = Number(e.target.value);
                             setContent({ ...content, items: newItems });
                           }}
                         />

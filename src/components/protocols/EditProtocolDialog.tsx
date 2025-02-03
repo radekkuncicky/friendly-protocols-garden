@@ -14,20 +14,12 @@ import { ClientProjectDetails } from "./edit/ClientProjectDetails";
 import { ProtocolItems } from "./edit/ProtocolItems";
 import { SignatureCanvas } from "./edit/SignatureCanvas";
 import { ProtocolActions } from "./edit/ProtocolActions";
+import { Protocol, ProtocolContent } from "@/types/protocol";
 
 interface EditProtocolDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  protocol: {
-    id: string;
-    protocol_number: string;
-    client_id: string | null;
-    content: any;
-    status: string;
-    updated_at: string;
-    manager_signature?: string;
-    client_signature?: string;
-  };
+  protocol: Protocol;
 }
 
 export const EditProtocolDialog = ({
@@ -38,10 +30,10 @@ export const EditProtocolDialog = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [content, setContent] = useState(protocol.content || {});
+  const [content, setContent] = useState<ProtocolContent>(protocol.content || {});
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<typeof protocol>) => {
+    mutationFn: async (data: Partial<Protocol>) => {
       const { error } = await supabase
         .from('protocols')
         .update(data)
