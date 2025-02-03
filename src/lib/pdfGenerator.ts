@@ -1,13 +1,14 @@
 import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
 import type { UserOptions } from 'jspdf-autotable';
+import { Protocol } from "@/types/protocol";
 
 // Extend jsPDF type to include autoTable
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: UserOptions) => jsPDF;
 }
 
-export const generatePDF = async (protocol: any) => {
+export const generatePDF = async (protocol: Protocol) => {
   // Initialize jsPDF
   const doc = new jsPDF() as jsPDFWithAutoTable;
   
@@ -40,6 +41,13 @@ export const generatePDF = async (protocol: any) => {
     // Update currentY to be after the table
     currentY = (doc as any).lastAutoTable?.finalY + 20 || currentY + 20;
   }
+
+  // Add notes if present
+  if (protocol.content.notes) {
+    doc.text('Poznámky:', 20, currentY);
+    doc.text(protocol.content.notes, 20, currentY + 10);
+    currentY += 30;
+  }
   
   // Add signatures if present
   if (protocol.manager_signature) {
@@ -51,6 +59,16 @@ export const generatePDF = async (protocol: any) => {
   if (protocol.client_signature) {
     doc.addImage(protocol.client_signature, 'PNG', 20, currentY, 50, 30);
     doc.text('Podpis klienta', 20, currentY + 35);
+  }
+
+  // Add status watermark for completed protocols
+  if (protocol.status === 'completed') {
+    doc.setFontSize(40);
+    doc.setTextColor(200, 200, 200);
+    doc.text('DOKONČENO', 50, doc.internal.pageSize.height / 2, {
+      rotate: 45,
+    });
+    doc.setTextColor(0, 0, 0);
   }
   
   return doc.output('blob');
