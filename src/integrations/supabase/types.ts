@@ -173,10 +173,13 @@ export type Database = {
       protocols: {
         Row: {
           client_id: string | null
+          client_signature: string | null
           content: Json
           created_at: string
           created_by: string | null
           id: string
+          items_order: Json | null
+          manager_signature: string | null
           protocol_number: string
           sent_at: string | null
           status: string
@@ -186,10 +189,13 @@ export type Database = {
         }
         Insert: {
           client_id?: string | null
+          client_signature?: string | null
           content: Json
           created_at?: string
           created_by?: string | null
           id?: string
+          items_order?: Json | null
+          manager_signature?: string | null
           protocol_number: string
           sent_at?: string | null
           status?: string
@@ -199,10 +205,13 @@ export type Database = {
         }
         Update: {
           client_id?: string | null
+          client_signature?: string | null
           content?: Json
           created_at?: string
           created_by?: string | null
           id?: string
+          items_order?: Json | null
+          manager_signature?: string | null
           protocol_number?: string
           sent_at?: string | null
           status?: string
