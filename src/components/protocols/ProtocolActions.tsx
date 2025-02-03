@@ -1,21 +1,11 @@
-import { Eye, Send, Download, Trash2, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useState } from "react";
-import { EditProtocolDialog } from "./EditProtocolDialog";
 import { Protocol } from "@/types/protocol";
+import { ProtocolActionButtons } from "./actions/ProtocolActionButtons";
+import { DeleteProtocolDialog } from "./actions/DeleteProtocolDialog";
+import { EditProtocolDialog } from "./EditProtocolDialog";
 
 interface ProtocolActionsProps {
   userRole: string | null;
@@ -24,7 +14,12 @@ interface ProtocolActionsProps {
   protocol: Protocol;
 }
 
-export const ProtocolActions = ({ userRole, protocolId, status, protocol }: ProtocolActionsProps) => {
+export const ProtocolActions = ({ 
+  userRole, 
+  protocolId, 
+  status, 
+  protocol 
+}: ProtocolActionsProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -101,10 +96,6 @@ export const ProtocolActions = ({ userRole, protocolId, status, protocol }: Prot
     });
   };
 
-  const handleDelete = () => {
-    deleteMutation.mutate();
-  };
-
   const handleSend = () => {
     if (window.confirm('Are you sure you want to send this protocol?')) {
       sendMutation.mutate();
@@ -113,54 +104,21 @@ export const ProtocolActions = ({ userRole, protocolId, status, protocol }: Prot
 
   return (
     <>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" size="icon" onClick={handleView}>
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="icon" onClick={() => setShowEditDialog(true)}>
-          <Pencil className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={handleSend}
-          disabled={status === 'sent'}
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="icon" onClick={handleDownload}>
-          <Download className="h-4 w-4" />
-        </Button>
-        {(userRole === "admin" || userRole === "manager") && (
-          <Button 
-            variant="destructive" 
-            size="icon" 
-            onClick={() => setShowDeleteDialog(true)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
+      <ProtocolActionButtons
+        userRole={userRole}
+        status={status}
+        onView={handleView}
+        onEdit={() => setShowEditDialog(true)}
+        onSend={handleSend}
+        onDownload={handleDownload}
+        onDelete={() => setShowDeleteDialog(true)}
+      />
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the protocol.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteProtocolDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={() => deleteMutation.mutate()}
+      />
 
       <EditProtocolDialog
         open={showEditDialog}

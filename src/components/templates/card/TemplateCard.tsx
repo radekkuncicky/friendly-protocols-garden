@@ -1,12 +1,7 @@
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { Template } from "@/types/template";
 import { TemplateCardHeader } from "./TemplateCardHeader";
+import { TemplateCardContent } from "./TemplateCardContent";
 import { TemplateCardActions } from "./TemplateCardActions";
 
 interface TemplateCardProps {
@@ -41,16 +36,9 @@ export const TemplateCard = ({
           onStatusChange={onStatusChange}
         />
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground">
-          {template.content.description || "Bez popisu"}
-        </p>
-        {template.signature_required && (
-          <Badge variant="outline" className="mt-2">
-            Vyžaduje podpis
-          </Badge>
-        )}
-      </CardContent>
+      
+      <TemplateCardContent template={template} />
+      
       <CardFooter className="mt-auto">
         <TemplateCardActions
           template={template}

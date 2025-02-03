@@ -6,15 +6,9 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { ProtocolHeader } from "./edit/ProtocolHeader";
-import { ClientProjectDetails } from "./edit/ClientProjectDetails";
-import { ProtocolItems } from "./edit/ProtocolItems";
-import { SignatureCanvas } from "./edit/SignatureCanvas";
-import { ProtocolActions } from "./edit/ProtocolActions";
 import { Protocol, ProtocolContent } from "@/types/protocol";
+import { EditProtocolForm } from "./edit/EditProtocolForm";
 
 interface EditProtocolDialogProps {
   open: boolean;
@@ -82,62 +76,19 @@ export const EditProtocolDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
-        <ProtocolHeader
-          protocolNumber={protocol.protocol_number}
-          status={protocol.status}
-          updatedAt={protocol.updated_at}
-        />
-
         <ScrollArea className="flex-1">
-          <form onSubmit={handleSubmit} className="space-y-6 p-6">
-            <ClientProjectDetails
-              content={content}
-              date={date}
-              setDate={setDate}
-              setContent={setContent}
-            />
-
-            <Separator />
-
-            <ProtocolItems
-              content={content}
-              setContent={setContent}
-            />
-
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Poznámky</h3>
-              <Textarea
-                value={content.notes || ""}
-                onChange={(e) => setContent({ ...content, notes: e.target.value })}
-                rows={4}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Podpisy</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <SignatureCanvas
-                  label="Podpis manažera"
-                  onSave={handleManagerSignature}
-                />
-                <SignatureCanvas
-                  label="Podpis klienta"
-                  onSave={handleClientSignature}
-                />
-              </div>
-            </div>
-          </form>
+          <EditProtocolForm
+            protocol={protocol}
+            content={content}
+            date={date}
+            setDate={setDate}
+            setContent={setContent}
+            onSubmit={handleSubmit}
+            onClose={() => onOpenChange(false)}
+            onManagerSignature={handleManagerSignature}
+            onClientSignature={handleClientSignature}
+          />
         </ScrollArea>
-
-        <ProtocolActions
-          onClose={() => onOpenChange(false)}
-          onSubmit={handleSubmit}
-          protocol={protocol}
-        />
       </DialogContent>
     </Dialog>
   );
