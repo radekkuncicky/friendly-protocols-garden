@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export interface ProtocolItem {
   description: string;
   quantity: number;
@@ -10,6 +12,7 @@ export interface ProtocolContent {
   project_name?: string;
   items?: ProtocolItem[];
   notes?: string;
+  [key: string]: any; // Add index signature to make it compatible with Json type
 }
 
 export interface Protocol {

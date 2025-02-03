@@ -33,7 +33,7 @@ export const EditProtocolDialog = ({
   const [content, setContent] = useState<ProtocolContent>(protocol.content || {});
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<Protocol>) => {
+    mutationFn: async (data: { content?: ProtocolContent; manager_signature?: string; client_signature?: string; updated_at?: string }) => {
       const { error } = await supabase
         .from('protocols')
         .update(data)

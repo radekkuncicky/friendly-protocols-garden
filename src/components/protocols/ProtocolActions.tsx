@@ -15,21 +15,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { EditProtocolDialog } from "./EditProtocolDialog";
+import { Protocol } from "@/types/protocol";
 
 interface ProtocolActionsProps {
   userRole: string | null;
   protocolId: string;
-  status: string;
-  protocol: {
-    id: string;
-    protocol_number: string;
-    client_id: string | null;
-    content: any;
-    status: string;
-    created_at: string;
-    updated_at: string;
-    sent_at: string | null;
-  };
+  status: Protocol['status'];
+  protocol: Protocol;
 }
 
 export const ProtocolActions = ({ userRole, protocolId, status, protocol }: ProtocolActionsProps) => {
@@ -71,7 +63,7 @@ export const ProtocolActions = ({ userRole, protocolId, status, protocol }: Prot
       const { error } = await supabase
         .from('protocols')
         .update({ 
-          status: 'sent',
+          status: 'sent' as const,
           sent_at: new Date().toISOString()
         })
         .eq('id', protocolId);
