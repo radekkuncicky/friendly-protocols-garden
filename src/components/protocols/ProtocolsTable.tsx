@@ -8,20 +8,7 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
 import { ProtocolActions } from "./ProtocolActions";
-
-interface Protocol {
-  id: string;
-  protocol_number: string;
-  client_id: string | null;
-  content: any;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  sent_at: string | null;
-  clients?: {
-    name: string;
-  };
-}
+import { Protocol } from "@/types/protocol";
 
 interface ProtocolsTableProps {
   protocols: Protocol[] | null;

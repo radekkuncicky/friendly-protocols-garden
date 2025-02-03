@@ -1,8 +1,9 @@
 import { Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Protocol } from "@/types/protocol";
 
 interface StatusBadgeProps {
-  status: string;
+  status: Protocol['status'];
 }
 
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
