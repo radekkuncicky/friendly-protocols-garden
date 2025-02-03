@@ -41,13 +41,10 @@ export const EditProtocolDialog = ({
   const [content, setContent] = useState(protocol.content || {});
 
   const updateMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data: Partial<typeof protocol>) => {
       const { error } = await supabase
         .from('protocols')
-        .update({ 
-          content,
-          updated_at: new Date().toISOString()
-        })
+        .update(data)
         .eq('id', protocol.id);
       
       if (error) throw error;
@@ -72,19 +69,20 @@ export const EditProtocolDialog = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMutation.mutate();
+    updateMutation.mutate({ 
+      content,
+      updated_at: new Date().toISOString()
+    });
   };
 
   const handleManagerSignature = (signature: string) => {
     updateMutation.mutate({
-      ...protocol,
       manager_signature: signature,
     });
   };
 
   const handleClientSignature = (signature: string) => {
     updateMutation.mutate({
-      ...protocol,
       client_signature: signature,
     });
   };
