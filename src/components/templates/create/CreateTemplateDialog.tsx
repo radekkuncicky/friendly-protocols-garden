@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { TemplateBasicInfo } from "./TemplateBasicInfo";
-import { TemplateItemsList } from "./TemplateItemsList";
+import { CreateTemplateBasicInfo } from "./CreateTemplateBasicInfo";
+import { CreateTemplateItems } from "./CreateTemplateItems";
 
 interface CreateTemplateDialogProps {
   open: boolean;
@@ -68,11 +68,7 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
         description: "Nová šablona byla úspěšně vytvořena.",
       });
       onOpenChange(false);
-      setName("");
-      setDescription("");
-      setCategory("Obecné");
-      setItems([]);
-      setSignatureRequired(true);
+      resetForm();
     },
     onError: (error) => {
       toast({
@@ -83,6 +79,14 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
       console.error("Error creating template:", error);
     },
   });
+
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setCategory("Obecné");
+    setItems([]);
+    setSignatureRequired(true);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,30 +103,28 @@ const CreateTemplateDialog = ({ open, onOpenChange }: CreateTemplateDialogProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Vytvořit novou šablonu</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-          <div className="space-y-3 flex-1 overflow-y-auto">
-            <TemplateBasicInfo
-              name={name}
-              setName={setName}
-              description={description}
-              setDescription={setDescription}
-              category={category}
-              setCategory={setCategory}
-              signatureRequired={signatureRequired}
-              setSignatureRequired={setSignatureRequired}
-            />
-            
-            <TemplateItemsList
-              items={items}
-              setItems={setItems}
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <CreateTemplateBasicInfo
+            name={name}
+            setName={setName}
+            description={description}
+            setDescription={setDescription}
+            category={category}
+            setCategory={setCategory}
+            signatureRequired={signatureRequired}
+            setSignatureRequired={setSignatureRequired}
+          />
+          
+          <CreateTemplateItems
+            items={items}
+            setItems={setItems}
+          />
 
-          <div className="flex justify-end gap-2 pt-3 mt-3 border-t">
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
