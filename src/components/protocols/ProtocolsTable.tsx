@@ -63,6 +63,7 @@ export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => 
                   userRole={userRole} 
                   protocolId={protocol.id}
                   status={protocol.status}
+                  protocol={protocol}
                 />
               </TableCell>
             </TableRow>

@@ -1,4 +1,4 @@
-import { Eye, Send, Download, Trash2 } from "lucide-react";
+import { Eye, Send, Download, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,17 +14,25 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
+import { EditProtocolDialog } from "./EditProtocolDialog";
 
 interface ProtocolActionsProps {
   userRole: string | null;
   protocolId: string;
   status: string;
+  protocol: {
+    id: string;
+    protocol_number: string;
+    client_id: string | null;
+    content: any;
+  };
 }
 
-export const ProtocolActions = ({ userRole, protocolId, status }: ProtocolActionsProps) => {
+export const ProtocolActions = ({ userRole, protocolId, status, protocol }: ProtocolActionsProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -84,7 +92,6 @@ export const ProtocolActions = ({ userRole, protocolId, status }: ProtocolAction
   });
 
   const handleView = () => {
-    // TODO: Implement view functionality
     toast({
       title: "View protocol",
       description: "Viewing protocol details (to be implemented)",
@@ -92,7 +99,6 @@ export const ProtocolActions = ({ userRole, protocolId, status }: ProtocolAction
   };
 
   const handleDownload = () => {
-    // TODO: Implement download functionality
     toast({
       title: "Download protocol",
       description: "Downloading protocol (to be implemented)",
@@ -114,6 +120,9 @@ export const ProtocolActions = ({ userRole, protocolId, status }: ProtocolAction
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="icon" onClick={handleView}>
           <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={() => setShowEditDialog(true)}>
+          <Pencil className="h-4 w-4" />
         </Button>
         <Button 
           variant="outline" 
@@ -156,6 +165,12 @@ export const ProtocolActions = ({ userRole, protocolId, status }: ProtocolAction
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditProtocolDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        protocol={protocol}
+      />
     </>
   );
 };
