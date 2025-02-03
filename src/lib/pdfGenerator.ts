@@ -65,8 +65,12 @@ export const generatePDF = async (protocol: Protocol) => {
   if (protocol.status === 'completed') {
     doc.setFontSize(40);
     doc.setTextColor(200, 200, 200);
-    doc.text('DOKONČENO', 50, doc.internal.pageSize.height / 2, {
-      rotate: 45,
+    // Use the correct rotation syntax for jsPDF
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+    doc.text('DOKONČENO', pageWidth/2, pageHeight/2, {
+      align: 'center',
+      angle: 45
     });
     doc.setTextColor(0, 0, 0);
   }
