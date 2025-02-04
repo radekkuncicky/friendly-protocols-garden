@@ -25,7 +25,6 @@ export const ProtocolActionButtons = ({
   clientSignature,
 }: ProtocolActionButtonsProps) => {
   const isEditable = !clientSignature && status !== 'completed';
-  const canBeSent = status !== 'completed' && status !== 'sent';
 
   return (
     <div className="flex justify-end gap-2">
@@ -67,17 +66,12 @@ export const ProtocolActionButtons = ({
               variant="outline" 
               size="icon" 
               onClick={onSend}
-              disabled={!canBeSent}
             >
               <Send className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {status === 'sent' 
-              ? 'Protokol již byl odeslán'
-              : status === 'completed'
-                ? 'Dokončený protokol nelze odeslat'
-                : 'Odeslat protokol'}
+            <p>Odeslat protokol</p>
           </TooltipContent>
         </Tooltip>
 

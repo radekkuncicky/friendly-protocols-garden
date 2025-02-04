@@ -57,21 +57,6 @@ export const ProtocolActions = ({
 
   const sendMutation = useMutation({
     mutationFn: async () => {
-      // First, check the current status of the protocol
-      const { data: currentProtocol, error: fetchError } = await supabase
-        .from('protocols')
-        .select('status')
-        .eq('id', protocolId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      // If protocol is already sent or completed, prevent sending
-      if (currentProtocol?.status === 'sent' || currentProtocol?.status === 'completed') {
-        throw new Error('Protocol has already been sent');
-      }
-
-      // If checks pass, proceed with sending
       const { error: updateError } = await supabase
         .from('protocols')
         .update({ 
@@ -91,13 +76,9 @@ export const ProtocolActions = ({
     },
     onError: (error) => {
       console.error('Error sending protocol:', error);
-      const errorMessage = error instanceof Error && error.message === 'Protocol has already been sent'
-        ? "Protokol již byl odeslán a nelze jej odeslat znovu."
-        : "Nepodařilo se odeslat protokol. Zkuste to prosím znovu.";
-      
       toast({
         title: "Chyba",
-        description: errorMessage,
+        description: "Nepodařilo se odeslat protokol. Zkuste to prosím znovu.",
         variant: "destructive",
       });
     },
@@ -118,7 +99,7 @@ export const ProtocolActions = ({
   };
 
   const handleSend = () => {
-    if (window.confirm('Opravdu chcete odeslat tento protokol? Po odeslání již nebude možné protokol znovu odeslat.')) {
+    if (window.confirm('Opravdu chcete odeslat tento protokol?')) {
       sendMutation.mutate();
     }
   };
