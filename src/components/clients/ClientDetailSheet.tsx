@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { cs } from "date-fns/locale";
@@ -48,6 +49,10 @@ export const ClientDetailSheet = ({
 
   if (!open || !clientId) return null;
 
+  const formattedDate = client?.created_at 
+    ? format(new Date(client.created_at), "Pp", { locale: cs })
+    : "N/A";
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl">
@@ -57,7 +62,7 @@ export const ClientDetailSheet = ({
             {client && <ClientStatusSelect client={client} />}
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Vytvořeno: {format(new Date(client?.created_at || ''), "Pp", { locale: cs })}</span>
+            <span>Vytvořeno: {formattedDate}</span>
             <span>•</span>
             <span>Vytvořil: {client?.profiles?.full_name}</span>
           </div>
