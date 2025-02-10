@@ -22,7 +22,7 @@ export function TemplateUploadSection() {
     setIsUploading(true);
     const file = event.target.files[0];
     const fileExt = file.name.split('.').pop()?.toLowerCase();
-    const allowedTypes = ['pdf', 'doc', 'docx', 'txt'];
+    const allowedTypes = ['docx'];
 
     console.log("File details:", {
       name: file.name,
@@ -34,7 +34,7 @@ export function TemplateUploadSection() {
     if (!fileExt || !allowedTypes.includes(fileExt)) {
       toast({
         title: "Nepodporovaný formát",
-        description: "Povolené formáty jsou: PDF, DOC, DOCX, TXT",
+        description: "Povolený formát je pouze DOCX",
         variant: "destructive",
       });
       setIsUploading(false);
@@ -132,7 +132,7 @@ export function TemplateUploadSection() {
       <input
         id="template-upload"
         type="file"
-        accept=".pdf,.doc,.docx,.txt"
+        accept=".docx"
         className="hidden"
         onChange={handleTemplateUpload}
       />

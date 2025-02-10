@@ -146,6 +146,60 @@ export type Database = {
           },
         ]
       }
+      email_log: {
+        Row: {
+          attachments: Json | null
+          email_body: string | null
+          email_subject: string | null
+          error_message: string | null
+          id: string
+          protocol_id: string | null
+          sent_at: string | null
+          sent_by: string | null
+          sent_to: string
+          status: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          email_body?: string | null
+          email_subject?: string | null
+          error_message?: string | null
+          id?: string
+          protocol_id?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          sent_to: string
+          status?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          email_body?: string | null
+          email_subject?: string | null
+          error_message?: string | null
+          id?: string
+          protocol_id?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          sent_to?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_log_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "protocols"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_protocol"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
