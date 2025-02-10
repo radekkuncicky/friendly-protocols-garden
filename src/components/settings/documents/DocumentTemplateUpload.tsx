@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,38 +16,77 @@ export function DocumentTemplateUpload({
   onTemplateUpdate 
 }: DocumentTemplateUploadProps) {
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleTemplateUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files || !event.target.files[0]) return;
+    console.log("Upload triggered", event.target.files);
+    
+    if (!event.target.files || !event.target.files[0]) {
+      console.log("No file selected");
+      return;
+    }
 
+    setIsUploading(true);
     const file = event.target.files[0];
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    const allowedTypes = ['pdf', 'doc', 'docx', 'txt'];
+
+    console.log("File details:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      extension: fileExt
+    });
+
+    if (!fileExt || !allowedTypes.includes(fileExt)) {
+      toast({
+        title: "Nepodporovaný formát",
+        description: "Povolené formáty jsou: PDF, DOC, DOCX, TXT",
+        variant: "destructive",
+      });
+      setIsUploading(false);
+      return;
+    }
 
     try {
-      const { error: uploadError } = await supabase.storage
-        .from('settings-files')
-        .upload(filePath, file);
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      console.log("Generated filename:", fileName);
 
-      if (uploadError) throw uploadError;
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('document-templates')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("File uploaded successfully:", uploadData);
 
       const { data: { publicUrl } } = supabase.storage
-        .from('settings-files')
-        .getPublicUrl(filePath);
+        .from('document-templates')
+        .getPublicUrl(fileName);
+
+      console.log("Public URL generated:", publicUrl);
 
       onTemplateUpdate(publicUrl);
       
       toast({
         title: "Šablona nahrána",
-        description: "Šablona dokumentu byla úspěšně nahrána.",
+        description: "Šablona byla úspěšně nahrána.",
       });
     } catch (error: any) {
+      console.error("Upload process error:", error);
       toast({
         title: "Chyba",
         description: "Nepodařilo se nahrát šablonu: " + error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsUploading(false);
+      // Reset the file input
+      const input = document.getElementById('template-upload-default') as HTMLInputElement;
+      if (input) input.value = '';
     }
   };
 
@@ -74,13 +114,14 @@ export function DocumentTemplateUpload({
           <Button
             type="button"
             variant="outline"
-            onClick={() => document.getElementById('template-upload')?.click()}
+            onClick={() => document.getElementById('template-upload-default')?.click()}
+            disabled={isUploading}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Nahrát šablonu
+            {isUploading ? "Nahrávání..." : "Nahrát šablonu"}
           </Button>
           <input
-            id="template-upload"
+            id="template-upload-default"
             type="file"
             accept=".pdf,.doc,.docx,.txt"
             className="hidden"
