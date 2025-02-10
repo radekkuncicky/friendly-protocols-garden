@@ -254,6 +254,7 @@ export type Database = {
           document_footer_config: Json | null
           document_header_config: Json | null
           document_logo_position: string | null
+          document_template: string | null
           document_template_type: string | null
           id: string
           protocol_numbering_format: string | null
@@ -274,6 +275,7 @@ export type Database = {
           document_footer_config?: Json | null
           document_header_config?: Json | null
           document_logo_position?: string | null
+          document_template?: string | null
           document_template_type?: string | null
           id?: string
           protocol_numbering_format?: string | null
@@ -294,6 +296,7 @@ export type Database = {
           document_footer_config?: Json | null
           document_header_config?: Json | null
           document_logo_position?: string | null
+          document_template?: string | null
           document_template_type?: string | null
           id?: string
           protocol_numbering_format?: string | null

@@ -7,6 +7,7 @@ import { LogoBrandingSettings } from "./LogoBrandingSettings";
 import { CompanyInfoSettings } from "./CompanyInfoSettings";
 import { HeaderFooterSettings } from "./HeaderFooterSettings";
 import { BodySettings } from "./BodySettings";
+import { DocumentTemplateUpload } from "./DocumentTemplateUpload";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DocumentSettingsContentProps {
@@ -54,6 +55,10 @@ export function DocumentSettingsContent({
             <TemplateSelection
               value={settings?.document_template_type}
               onChange={(value) => onUpdate({ document_template_type: value })}
+            />
+            <DocumentTemplateUpload
+              currentTemplate={settings?.document_template}
+              onTemplateUpdate={(templateUrl) => onUpdate({ document_template: templateUrl })}
             />
           </CardContent>
         </Card>
