@@ -305,6 +305,53 @@ export type Database = {
         }
         Relationships: []
       }
+      settings_templates: {
+        Row: {
+          created_at: string | null
+          file_size: number
+          file_type: string
+          file_url: string
+          filename: string
+          id: string
+          is_default: boolean | null
+          updated_at: string | null
+          upload_date: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_size: number
+          file_type: string
+          file_url: string
+          filename: string
+          id?: string
+          is_default?: boolean | null
+          updated_at?: string | null
+          upload_date?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_size?: number
+          file_type?: string
+          file_url?: string
+          filename?: string
+          id?: string
+          is_default?: boolean | null
+          updated_at?: string | null
+          upload_date?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settings_templates_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       templates: {
         Row: {
           category: string | null
