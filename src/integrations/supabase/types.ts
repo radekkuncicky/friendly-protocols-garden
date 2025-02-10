@@ -379,6 +379,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "manager" | "worker"
+      document_template_type: "standard" | "classic" | "minimalist"
     }
     CompositeTypes: {
       [_ in never]: never

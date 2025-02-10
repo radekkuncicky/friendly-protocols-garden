@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { useDraggable } from "@/hooks/useDraggable";
 import { cn } from "@/lib/utils";
-import { Logo, FileText, User, LayoutGrid } from "lucide-react";
+import { Image, FileText, User, LayoutGrid } from "lucide-react";
 
 interface DocumentPreviewProps {
   settings: any;
@@ -30,17 +30,17 @@ export function DocumentPreview({ settings, onDragEnd }: DocumentPreviewProps) {
           )}>
             {settings?.document_logo_position === "top-left" && (
               <div className="w-24 h-12 bg-gray-200 rounded flex items-center justify-center">
-                <Logo className="h-6 w-6 text-gray-400" />
+                <Image className="h-6 w-6 text-gray-400" />
               </div>
             )}
             {settings?.document_logo_position === "top-center" && (
               <div className="absolute left-1/2 -translate-x-1/2 w-24 h-12 bg-gray-200 rounded flex items-center justify-center">
-                <Logo className="h-6 w-6 text-gray-400" />
+                <Image className="h-6 w-6 text-gray-400" />
               </div>
             )}
             {settings?.document_logo_position === "top-right" && (
               <div className="ml-auto w-24 h-12 bg-gray-200 rounded flex items-center justify-center">
-                <Logo className="h-6 w-6 text-gray-400" />
+                <Image className="h-6 w-6 text-gray-400" />
               </div>
             )}
           </div>
@@ -93,7 +93,7 @@ export function DocumentPreview({ settings, onDragEnd }: DocumentPreviewProps) {
           )}>
             {settings?.document_logo_position === "footer" && (
               <div className="mb-4 mx-auto w-24 h-12 bg-gray-200 rounded flex items-center justify-center">
-                <Logo className="h-6 w-6 text-gray-400" />
+                <Image className="h-6 w-6 text-gray-400" />
               </div>
             )}
             <div className="h-px bg-gray-200 mb-2" />
