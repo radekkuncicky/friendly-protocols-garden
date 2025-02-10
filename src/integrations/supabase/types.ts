@@ -183,6 +183,7 @@ export type Database = {
           protocol_number: string
           sent_at: string | null
           status: string
+          template_file_path: string | null
           template_id: string | null
           updated_at: string
           updated_by: string | null
@@ -199,6 +200,7 @@ export type Database = {
           protocol_number: string
           sent_at?: string | null
           status?: string
+          template_file_path?: string | null
           template_id?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -215,6 +217,7 @@ export type Database = {
           protocol_number?: string
           sent_at?: string | null
           status?: string
+          template_file_path?: string | null
           template_id?: string | null
           updated_at?: string
           updated_by?: string | null
