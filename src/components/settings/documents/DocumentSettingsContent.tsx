@@ -1,9 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Save, RotateCcw, GripVertical } from "lucide-react";
+import { Save, RotateCcw } from "lucide-react";
 import { TemplateSelection } from "./TemplateSelection";
-import { CompanyInfoSettings } from "./CompanyInfoSettings";
 import { DocumentTemplateUpload } from "./DocumentTemplateUpload";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -56,19 +55,6 @@ export function DocumentSettingsContent({
             <DocumentTemplateUpload
               currentTemplate={settings?.document_template}
               onTemplateUpdate={(templateUrl) => onUpdate({ document_template: templateUrl })}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Informace o společnosti a klientovi</CardTitle>
-            <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" />
-          </CardHeader>
-          <CardContent>
-            <CompanyInfoSettings
-              settings={settings}
-              onUpdate={onUpdate}
             />
           </CardContent>
         </Card>
