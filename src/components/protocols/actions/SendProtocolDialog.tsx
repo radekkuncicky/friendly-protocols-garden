@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Protocol } from "@/types/protocol";
+import { Loader2 } from "lucide-react";
 
 interface SendProtocolDialogProps {
   open: boolean;
@@ -31,23 +32,26 @@ export const SendProtocolDialog = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState(protocol.clients?.email || "");
-  const [message, setMessage] = useState("");
+  const [subject, setSubject] = useState(`Předávací protokol ${protocol.protocol_number}`);
+  const [message, setMessage] = useState(`Vážený zákazníku,\n\nv příloze Vám zasíláme předávací protokol ${protocol.protocol_number}.\n\nS pozdravem`);
 
   const sendMutation = useMutation({
     mutationFn: async () => {
-      const { error: updateError } = await supabase
-        .from('protocols')
-        .update({ 
-          status: 'sent',
-          sent_at: new Date().toISOString()
-        })
-        .eq('id', protocol.id);
-      
-      if (updateError) throw updateError;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
 
-      // Here we would typically call an edge function to send the email
-      // For now, we'll just simulate it
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.functions.invoke('process-and-send-protocol', {
+        body: {
+          protocolId: protocol.id,
+          emailSubject: subject,
+          emailBody: message.replace(/\n/g, '<br>'),
+        },
+        headers: {
+          'x-user-id': session.user.id,
+        },
+      });
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['protocols'] });
@@ -81,7 +85,7 @@ export const SendProtocolDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Odeslat protokol</DialogTitle>
           <DialogDescription>
@@ -107,12 +111,21 @@ export const SendProtocolDialog = ({
           </div>
 
           <div>
-            <Label htmlFor="message">Doprovodná zpráva (volitelné)</Label>
+            <Label htmlFor="subject">Předmět</Label>
+            <Input
+              id="subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="message">Text emailu</Label>
             <Textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Zde můžete napsat doprovodnou zprávu..."
+              rows={6}
             />
           </div>
         </div>
@@ -121,8 +134,18 @@ export const SendProtocolDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Zrušit
           </Button>
-          <Button onClick={handleSend} disabled={sendMutation.isPending}>
-            {sendMutation.isPending ? "Odesílání..." : "Odeslat"}
+          <Button 
+            onClick={handleSend} 
+            disabled={sendMutation.isPending}
+          >
+            {sendMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Odesílání...
+              </>
+            ) : (
+              "Odeslat"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

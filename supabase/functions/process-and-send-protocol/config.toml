@@ -1,0 +1,6 @@
+
+[build]
+command = ["deno", "bundle", "--config", "deno.json", "index.ts", "main.js"]
+
+[deploy]
+command = ["deno", "run", "--allow-net", "--allow-env", "main.js"]
