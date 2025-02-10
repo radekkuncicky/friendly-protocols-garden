@@ -1,11 +1,14 @@
+
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentSettingsContent } from "./DocumentSettingsContent";
 import { DocumentPreview } from "./DocumentPreview";
+import { useState } from "react";
 
 export function DocumentSettingsTab() {
   const { toast } = useToast();
+  const [localSettings, setLocalSettings] = useState<any>(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],
@@ -16,6 +19,7 @@ export function DocumentSettingsTab() {
         .single();
 
       if (error) throw error;
+      setLocalSettings(data);
       return data;
     },
   });
@@ -44,6 +48,29 @@ export function DocumentSettingsTab() {
     },
   });
 
+  const handleUpdate = (values: any) => {
+    setLocalSettings((prev: any) => ({ ...prev, ...values }));
+  };
+
+  const handleSave = () => {
+    if (localSettings) {
+      updateMutation.mutate(localSettings);
+    }
+  };
+
+  const handleReset = () => {
+    setLocalSettings(settings);
+    toast({
+      title: "Nastavení obnoveno",
+      description: "Všechny změny byly vráceny do výchozího stavu.",
+    });
+  };
+
+  const handleDragEnd = (result: any) => {
+    // Implement drag end logic here
+    console.log("Drag ended:", result);
+  };
+
   if (isLoading) {
     return <div>Načítání...</div>;
   }
@@ -51,12 +78,15 @@ export function DocumentSettingsTab() {
   return (
     <div className="grid grid-cols-2 gap-6">
       <DocumentSettingsContent 
-        settings={settings} 
-        onUpdate={(values) => updateMutation.mutate(values)} 
+        settings={localSettings} 
+        onUpdate={handleUpdate}
+        onSave={handleSave}
+        onReset={handleReset}
       />
-      <div className="sticky top-6">
-        <DocumentPreview settings={settings} />
-      </div>
+      <DocumentPreview 
+        settings={localSettings}
+        onDragEnd={handleDragEnd}
+      />
     </div>
   );
 }
