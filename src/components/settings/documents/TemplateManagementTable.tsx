@@ -37,15 +37,20 @@ export function TemplateManagementTable() {
   const queryClient = useQueryClient();
   const [deleteTemplateId, setDeleteTemplateId] = useState<string | null>(null);
 
-  const { data: templates, isLoading } = useQuery({
+  const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
+      console.log("Fetching templates");
       const { data, error } = await supabase
         .from("settings_templates")
         .select("*")
         .order("upload_date", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching templates:", error);
+        throw error;
+      }
+      console.log("Templates fetched:", data);
       return data;
     },
   });
@@ -55,21 +60,31 @@ export function TemplateManagementTable() {
       const template = templates?.find((t) => t.id === id);
       if (!template) return;
 
+      console.log("Starting template deletion process for:", template);
+
       // Delete file from storage
       const filePath = new URL(template.file_url).pathname.split("/").pop();
       if (filePath) {
+        console.log("Deleting file from storage:", filePath);
         const { error: storageError } = await supabase.storage
           .from("document-templates")
           .remove([filePath]);
-        if (storageError) throw storageError;
+        if (storageError) {
+          console.error("Storage deletion error:", storageError);
+          throw storageError;
+        }
       }
 
       // Delete record from database
+      console.log("Deleting template record from database");
       const { error: dbError } = await supabase
         .from("settings_templates")
         .delete()
         .eq("id", id);
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Database deletion error:", dbError);
+        throw dbError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
@@ -79,6 +94,7 @@ export function TemplateManagementTable() {
       });
     },
     onError: (error) => {
+      console.error("Delete mutation error:", error);
       toast({
         title: "Chyba",
         description: "Nepodařilo se odstranit šablonu: " + error.message,
@@ -89,6 +105,15 @@ export function TemplateManagementTable() {
 
   if (isLoading) {
     return <div>Načítání...</div>;
+  }
+
+  if (error) {
+    console.error("Template table error:", error);
+    return (
+      <div className="text-red-500">
+        Chyba při načítání šablon: {error.message}
+      </div>
+    );
   }
 
   return (
@@ -128,6 +153,13 @@ export function TemplateManagementTable() {
               </TableCell>
             </TableRow>
           ))}
+          {templates?.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center text-muted-foreground">
+                Žádné šablony nebyly nahrány
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
 
