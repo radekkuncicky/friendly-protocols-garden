@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,8 +44,8 @@ const Settings = () => {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Nastavení</h1>
+    <div className="container mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold mb-10">Nastavení</h1>
       <SettingsTabs
         settings={settings}
         currentLogo={currentLogo}
@@ -57,3 +58,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
