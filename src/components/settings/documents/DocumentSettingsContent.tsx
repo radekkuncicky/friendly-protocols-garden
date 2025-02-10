@@ -5,8 +5,6 @@ import { Save, RotateCcw, GripVertical } from "lucide-react";
 import { TemplateSelection } from "./TemplateSelection";
 import { LogoBrandingSettings } from "./LogoBrandingSettings";
 import { CompanyInfoSettings } from "./CompanyInfoSettings";
-import { HeaderFooterSettings } from "./HeaderFooterSettings";
-import { BodySettings } from "./BodySettings";
 import { DocumentTemplateUpload } from "./DocumentTemplateUpload";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -83,22 +81,6 @@ export function DocumentSettingsContent({
           </CardHeader>
           <CardContent>
             <CompanyInfoSettings
-              settings={settings}
-              onUpdate={onUpdate}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Rozvržení dokumentu</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <HeaderFooterSettings
-              settings={settings}
-              onUpdate={onUpdate}
-            />
-            <BodySettings
               settings={settings}
               onUpdate={onUpdate}
             />
