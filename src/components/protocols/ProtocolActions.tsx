@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,6 +7,8 @@ import { Protocol } from "@/types/protocol";
 import { ProtocolActionButtons } from "./actions/ProtocolActionButtons";
 import { DeleteProtocolDialog } from "./actions/DeleteProtocolDialog";
 import { EditProtocolDialog } from "./EditProtocolDialog";
+import { SendProtocolDialog } from "./actions/SendProtocolDialog";
+import { ViewProtocolDialog } from "./actions/ViewProtocolDialog";
 
 interface ProtocolActionsProps {
   userRole: string | null;
@@ -26,6 +29,8 @@ export const ProtocolActions = ({
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showSendDialog, setShowSendDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -55,52 +60,22 @@ export const ProtocolActions = ({
     },
   });
 
-  const sendMutation = useMutation({
-    mutationFn: async () => {
-      const { error: updateError } = await supabase
-        .from('protocols')
-        .update({ 
-          status: 'sent' as const,
-          sent_at: new Date().toISOString()
-        })
-        .eq('id', protocolId);
-      
-      if (updateError) throw updateError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['protocols'] });
+  const handleDownload = async () => {
+    try {
+      // Implementation for download functionality will be added here
       toast({
-        title: "Protokol odeslán",
-        description: "Protokol byl úspěšně odeslán.",
+        title: "Stahování protokolu",
+        description: clientSignature 
+          ? "Stahování podepsaného PDF protokolu"
+          : "Stahování protokolu",
       });
-    },
-    onError: (error) => {
-      console.error('Error sending protocol:', error);
+    } catch (error) {
+      console.error('Error downloading protocol:', error);
       toast({
         title: "Chyba",
-        description: "Nepodařilo se odeslat protokol. Zkuste to prosím znovu.",
+        description: "Nepodařilo se stáhnout protokol. Zkuste to prosím znovu.",
         variant: "destructive",
       });
-    },
-  });
-
-  const handleView = () => {
-    toast({
-      title: "Zobrazit protokol",
-      description: "Zobrazení detailů protokolu (bude implementováno)",
-    });
-  };
-
-  const handleDownload = () => {
-    toast({
-      title: "Stáhnout protokol",
-      description: "Stahování protokolu (bude implementováno)",
-    });
-  };
-
-  const handleSend = () => {
-    if (window.confirm('Opravdu chcete odeslat tento protokol?')) {
-      sendMutation.mutate();
     }
   };
 
@@ -109,9 +84,9 @@ export const ProtocolActions = ({
       <ProtocolActionButtons
         userRole={userRole}
         status={status}
-        onView={handleView}
+        onView={() => setShowViewDialog(true)}
         onEdit={() => setShowEditDialog(true)}
-        onSend={handleSend}
+        onSend={() => setShowSendDialog(true)}
         onDownload={handleDownload}
         onDelete={() => setShowDeleteDialog(true)}
         clientSignature={clientSignature}
@@ -126,6 +101,18 @@ export const ProtocolActions = ({
       <EditProtocolDialog
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
+        protocol={protocol}
+      />
+
+      <SendProtocolDialog
+        open={showSendDialog}
+        onOpenChange={setShowSendDialog}
+        protocol={protocol}
+      />
+
+      <ViewProtocolDialog
+        open={showViewDialog}
+        onOpenChange={setShowViewDialog}
         protocol={protocol}
       />
     </>

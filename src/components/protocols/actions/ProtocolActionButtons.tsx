@@ -1,7 +1,9 @@
+
 import { Eye, Send, Download, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Protocol } from "@/types/protocol";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProtocolActionButtonsProps {
   userRole: string | null;
@@ -24,7 +26,21 @@ export const ProtocolActionButtons = ({
   onDelete,
   clientSignature,
 }: ProtocolActionButtonsProps) => {
+  const { toast } = useToast();
   const isEditable = !clientSignature && status !== 'completed';
+  const isDeletable = status === 'draft' && (userRole === 'admin' || userRole === 'manager');
+
+  const handleDelete = () => {
+    if (!isDeletable) {
+      toast({
+        title: "Smazání není možné",
+        description: "Protokol nelze smazat, protože byl již odeslán nebo podepsán.",
+        variant: "destructive",
+      });
+      return;
+    }
+    onDelete();
+  };
 
   return (
     <div className="flex justify-end gap-2">
@@ -36,7 +52,7 @@ export const ProtocolActionButtons = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Zobrazit protokol</p>
+            <p>Zobrazit protokol{clientSignature && " (pouze pro čtení)"}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -54,9 +70,9 @@ export const ProtocolActionButtons = ({
           <TooltipContent>
             {clientSignature 
               ? 'Protokol nelze upravit - je již podepsán klientem'
-              : isEditable 
-                ? 'Upravit protokol' 
-                : 'Protokol nelze upravit - je již dokončen'}
+              : status === 'completed'
+                ? 'Protokol nelze upravit - je již dokončen'
+                : 'Upravit protokol'}
           </TooltipContent>
         </Tooltip>
 
@@ -66,23 +82,36 @@ export const ProtocolActionButtons = ({
               variant="outline" 
               size="icon" 
               onClick={onSend}
+              disabled={status === 'completed'}
             >
               <Send className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Odeslat protokol</p>
+            {status === 'completed' 
+              ? 'Protokol je již dokončen'
+              : status === 'sent'
+                ? 'Znovu odeslat protokol'
+                : 'Odeslat protokol'}
           </TooltipContent>
         </Tooltip>
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={onDownload}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={onDownload}
+            >
               <Download className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            {isEditable ? 'Stáhnout upravitelný protokol' : 'Stáhnout finální protokol'}
+            {clientSignature 
+              ? 'Stáhnout podepsaný protokol (PDF)'
+              : isEditable 
+                ? 'Stáhnout upravitelný protokol'
+                : 'Stáhnout finální protokol'}
           </TooltipContent>
         </Tooltip>
 
@@ -92,13 +121,16 @@ export const ProtocolActionButtons = ({
               <Button 
                 variant="destructive" 
                 size="icon" 
-                onClick={onDelete}
+                onClick={handleDelete}
+                disabled={!isDeletable}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Smazat protokol</p>
+              {isDeletable 
+                ? 'Smazat protokol'
+                : 'Protokol nelze smazat - je již odeslán nebo podepsán'}
             </TooltipContent>
           </Tooltip>
         )}
