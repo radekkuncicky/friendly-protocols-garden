@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +41,8 @@ const Protocols = () => {
         .select(`
           *,
           clients (
-            name
+            name,
+            email
           )
         `)
         .order("created_at", { ascending: sortOrder === "asc" });
@@ -54,7 +56,11 @@ const Protocols = () => {
       const transformedData: Protocol[] = protocolsData.map(protocol => ({
         ...protocol,
         content: protocol.content as ProtocolContent,
-        status: protocol.status as Protocol['status']
+        status: protocol.status as Protocol['status'],
+        clients: protocol.clients ? {
+          name: protocol.clients.name,
+          email: protocol.clients.email
+        } : undefined
       }));
 
       return transformedData;
