@@ -1,5 +1,7 @@
+
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
 
 interface HeaderFooterSettingsProps {
   settings: any;
@@ -7,24 +9,33 @@ interface HeaderFooterSettingsProps {
 }
 
 export function HeaderFooterSettings({ settings, onUpdate }: HeaderFooterSettingsProps) {
-  const headerConfig = settings?.document_header_config || {};
-  const footerConfig = settings?.document_footer_config || {};
+  const [headerConfig, setHeaderConfig] = useState(settings?.document_header_config || {});
+  const [footerConfig, setFooterConfig] = useState(settings?.document_footer_config || {});
+
+  useEffect(() => {
+    setHeaderConfig(settings?.document_header_config || {});
+    setFooterConfig(settings?.document_footer_config || {});
+  }, [settings]);
 
   const updateHeaderConfig = (key: string, value: boolean) => {
+    const newConfig = {
+      ...headerConfig,
+      [key]: value,
+    };
+    setHeaderConfig(newConfig);
     onUpdate({
-      document_header_config: {
-        ...headerConfig,
-        [key]: value,
-      },
+      document_header_config: newConfig,
     });
   };
 
   const updateFooterConfig = (key: string, value: boolean) => {
+    const newConfig = {
+      ...footerConfig,
+      [key]: value,
+    };
+    setFooterConfig(newConfig);
     onUpdate({
-      document_footer_config: {
-        ...footerConfig,
-        [key]: value,
-      },
+      document_footer_config: newConfig,
     });
   };
 
