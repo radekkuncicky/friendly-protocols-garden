@@ -29,6 +29,6 @@ export interface Protocol {
   client_signature?: string;
   clients?: {
     name: string;
-    email: string | null;
+    email: string | null;  // Changed to match database structure
   };
 }
