@@ -5,6 +5,9 @@ import { useToast } from "@/hooks/use-toast";
 import { DocumentSettingsContent } from "./DocumentSettingsContent";
 import { DocumentPreview } from "./DocumentPreview";
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TemplateUploadSection } from "./TemplateUploadSection";
+import { TemplateManagementTable } from "./TemplateManagementTable";
 
 export function DocumentSettingsTab() {
   const { toast } = useToast();
@@ -67,7 +70,6 @@ export function DocumentSettingsTab() {
   };
 
   const handleDragEnd = (result: any) => {
-    // Implement drag end logic here
     console.log("Drag ended:", result);
   };
 
@@ -76,13 +78,24 @@ export function DocumentSettingsTab() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-6">
-      <DocumentSettingsContent 
-        settings={localSettings} 
-        onUpdate={handleUpdate}
-        onSave={handleSave}
-        onReset={handleReset}
-      />
+    <div className="grid grid-cols-1 gap-6">
+      <div className="space-y-6">
+        <DocumentSettingsContent 
+          settings={localSettings} 
+          onUpdate={handleUpdate}
+          onSave={handleSave}
+          onReset={handleReset}
+        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Správa šablon dokumentů</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TemplateUploadSection />
+            <TemplateManagementTable />
+          </CardContent>
+        </Card>
+      </div>
       <DocumentPreview 
         settings={localSettings}
         onDragEnd={handleDragEnd}
