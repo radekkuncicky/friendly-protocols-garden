@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Template {
   id: string;
@@ -30,6 +31,7 @@ interface Template {
   file_type: string;
   file_url: string;
   upload_date: string;
+  is_default: boolean;
 }
 
 export function TemplateManagementTable() {
@@ -103,6 +105,31 @@ export function TemplateManagementTable() {
     },
   });
 
+  const setDefaultMutation = useMutation({
+    mutationFn: async ({ id, isDefault }: { id: string; isDefault: boolean }) => {
+      const { error } = await supabase
+        .from("settings_templates")
+        .update({ is_default: isDefault })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast({
+        title: "Výchozí šablona nastavena",
+        description: "Změna byla úspěšně uložena.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Chyba",
+        description: "Nepodařilo se nastavit výchozí šablonu: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   if (isLoading) {
     return <div>Načítání...</div>;
   }
@@ -124,6 +151,7 @@ export function TemplateManagementTable() {
             <TableHead>Název souboru</TableHead>
             <TableHead>Formát</TableHead>
             <TableHead>Datum nahrání</TableHead>
+            <TableHead>Výchozí</TableHead>
             <TableHead className="text-right">Akce</TableHead>
           </TableRow>
         </TableHeader>
@@ -134,6 +162,17 @@ export function TemplateManagementTable() {
               <TableCell>{template.file_type}</TableCell>
               <TableCell>
                 {new Date(template.upload_date).toLocaleDateString("cs-CZ")}
+              </TableCell>
+              <TableCell>
+                <Checkbox
+                  checked={template.is_default}
+                  onCheckedChange={(checked) => {
+                    setDefaultMutation.mutate({
+                      id: template.id,
+                      isDefault: checked === true,
+                    });
+                  }}
+                />
               </TableCell>
               <TableCell className="text-right space-x-2">
                 <Button
@@ -155,7 +194,7 @@ export function TemplateManagementTable() {
           ))}
           {templates?.length === 0 && (
             <TableRow>
-              <TableCell colSpan={4} className="text-center text-muted-foreground">
+              <TableCell colSpan={5} className="text-center text-muted-foreground">
                 Žádné šablony nebyly nahrány
               </TableCell>
             </TableRow>
