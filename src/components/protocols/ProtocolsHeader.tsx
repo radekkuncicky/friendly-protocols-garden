@@ -1,21 +1,31 @@
+
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type NewProtocolForm = {
-  protocol_number: string;
-}
+const formSchema = z.object({
+  protocol_number: z.string().min(1, "Protocol number is required"),
+});
+
+type NewProtocolForm = z.infer<typeof formSchema>;
 
 export const ProtocolsHeader = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const form = useForm<NewProtocolForm>();
+  const form = useForm<NewProtocolForm>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      protocol_number: "",
+    },
+  });
 
   const createProtocolMutation = useMutation({
     mutationFn: async (data: NewProtocolForm) => {
@@ -81,6 +91,7 @@ export const ProtocolsHeader = () => {
                     <FormControl>
                       <Input placeholder="Enter protocol number" {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
