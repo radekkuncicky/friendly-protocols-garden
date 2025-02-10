@@ -1,29 +1,10 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Eye, Trash2, Upload } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Checkbox } from "@/components/ui/checkbox";
+import { TemplateTable } from "./template-table/TemplateTable";
+import { DeleteTemplateDialog } from "./template-table/DeleteTemplateDialog";
 
 interface Template {
   id: string;
@@ -143,91 +124,34 @@ export function TemplateManagementTable() {
     );
   }
 
+  const handleSetDefault = (id: string, isDefault: boolean) => {
+    setDefaultMutation.mutate({ id, isDefault });
+  };
+
+  const handleDelete = (id: string) => {
+    setDeleteTemplateId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteTemplateId) {
+      deleteMutation.mutate(deleteTemplateId);
+      setDeleteTemplateId(null);
+    }
+  };
+
   return (
     <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Název souboru</TableHead>
-            <TableHead>Formát</TableHead>
-            <TableHead>Datum nahrání</TableHead>
-            <TableHead>Výchozí</TableHead>
-            <TableHead className="text-right">Akce</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {templates?.map((template) => (
-            <TableRow key={template.id}>
-              <TableCell>{template.filename}</TableCell>
-              <TableCell>{template.file_type}</TableCell>
-              <TableCell>
-                {new Date(template.upload_date).toLocaleDateString("cs-CZ")}
-              </TableCell>
-              <TableCell>
-                <Checkbox
-                  checked={template.is_default}
-                  onCheckedChange={(checked) => {
-                    setDefaultMutation.mutate({
-                      id: template.id,
-                      isDefault: checked === true,
-                    });
-                  }}
-                />
-              </TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(template.file_url, "_blank")}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => setDeleteTemplateId(template.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-          {templates?.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
-                Žádné šablony nebyly nahrány
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <TemplateTable
+        templates={templates || []}
+        onSetDefault={handleSetDefault}
+        onDelete={handleDelete}
+      />
 
-      <AlertDialog
-        open={!!deleteTemplateId}
-        onOpenChange={() => setDeleteTemplateId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Odstranit šablonu</AlertDialogTitle>
-            <AlertDialogDescription>
-              Opravdu chcete odstranit tuto šablonu? Tuto akci nelze vrátit zpět.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Zrušit</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (deleteTemplateId) {
-                  deleteMutation.mutate(deleteTemplateId);
-                  setDeleteTemplateId(null);
-                }
-              }}
-            >
-              Odstranit
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteTemplateDialog
+        isOpen={!!deleteTemplateId}
+        onClose={() => setDeleteTemplateId(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }
