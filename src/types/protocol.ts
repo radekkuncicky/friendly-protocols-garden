@@ -1,3 +1,4 @@
+
 import { Json } from "@/integrations/supabase/types";
 
 export interface ProtocolItem {
@@ -28,5 +29,6 @@ export interface Protocol {
   client_signature?: string;
   clients?: {
     name: string;
+    email: string | null;
   };
 }
