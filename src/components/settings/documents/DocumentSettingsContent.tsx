@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Save, RotateCcw } from "lucide-react";
 import { TemplateSelection } from "./TemplateSelection";
-import { DocumentTemplateUpload } from "./DocumentTemplateUpload";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DocumentSettingsContentProps {
@@ -51,10 +50,6 @@ export function DocumentSettingsContent({
             <TemplateSelection
               value={settings?.document_template_type}
               onChange={(value) => onUpdate({ document_template_type: value })}
-            />
-            <DocumentTemplateUpload
-              currentTemplate={settings?.document_template}
-              onTemplateUpdate={(templateUrl) => onUpdate({ document_template: templateUrl })}
             />
           </CardContent>
         </Card>
