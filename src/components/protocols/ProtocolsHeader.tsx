@@ -152,7 +152,7 @@ export const ProtocolsHeader = () => {
                       </FormControl>
                       <FormMessage />
                     </FormItem>} />
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-gray-950">
                   Create Protocol
                 </Button>
               </form>
