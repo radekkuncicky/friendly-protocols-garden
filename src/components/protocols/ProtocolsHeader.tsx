@@ -201,13 +201,13 @@ export const ProtocolsHeader = () => {
     );
 
     return (
-      <div className="relative">
-        <Command>
-          <CommandInput 
-            placeholder="Hledat klienta..."
-            value={searchValue}
-            onValueChange={setSearchValue}
-          />
+      <Command>
+        <CommandInput 
+          placeholder="Hledat klienta..."
+          value={searchValue}
+          onValueChange={setSearchValue}
+        />
+        <CommandList>
           <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
           <CommandGroup>
             {filteredClients.map((client) => (
@@ -224,8 +224,8 @@ export const ProtocolsHeader = () => {
               </CommandItem>
             ))}
           </CommandGroup>
-        </Command>
-      </div>
+        </CommandList>
+      </Command>
     );
   };
 
