@@ -207,6 +207,7 @@ export const ProtocolsHeader = () => {
           placeholder="Hledat klienta..."
           value={searchValue}
           onValueChange={setSearchValue}
+          className="hidden"
         />
         <CommandList>
           <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
@@ -288,13 +289,12 @@ export const ProtocolsHeader = () => {
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Input
-                                placeholder={isLoadingClients ? "Načítání..." : "Vyberte klienta"}
+                                placeholder={isLoadingClients ? "Načítání..." : "Vyberte nebo napište jméno klienta"}
                                 value={searchValue}
                                 onChange={(e) => {
                                   setSearchValue(e.target.value);
                                   setOpenClientCombobox(true);
                                 }}
-                                onClick={() => setOpenClientCombobox(true)}
                                 className="w-full"
                               />
                             </FormControl>
