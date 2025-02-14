@@ -177,7 +177,7 @@ export const ProtocolsHeader = () => {
     form.setValue("items", currentItems.filter((_, i) => i !== index));
   };
 
-  const renderClientSelection = () => {
+  const renderClientContent = () => {
     if (isLoadingClients) {
       return (
         <div className="flex items-center justify-center py-6">
@@ -196,20 +196,24 @@ export const ProtocolsHeader = () => {
     }
 
     return (
-      <CommandGroup>
-        {clients.map((client) => (
-          <CommandItem
-            key={client.id}
-            value={client.name}
-            onSelect={() => {
-              form.setValue("client_id", client.id);
-              setOpenClientCombobox(false);
-            }}
-          >
-            {client.name}
-          </CommandItem>
-        ))}
-      </CommandGroup>
+      <Command>
+        <CommandInput placeholder="Hledat klienta..." />
+        <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
+        <CommandGroup>
+          {clients.map((client) => (
+            <CommandItem
+              key={client.id}
+              value={client.name}
+              onSelect={() => {
+                form.setValue("client_id", client.id);
+                setOpenClientCombobox(false);
+              }}
+            >
+              {client.name}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </Command>
     );
   };
 
@@ -285,11 +289,7 @@ export const ProtocolsHeader = () => {
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-[400px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Hledat klienta..." />
-                              <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
-                              {renderClientSelection()}
-                            </Command>
+                            {renderClientContent()}
                           </PopoverContent>
                         </Popover>
                         <Button
