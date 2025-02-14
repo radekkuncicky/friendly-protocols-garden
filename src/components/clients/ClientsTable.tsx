@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Eye, Link2, Trash2 } from "lucide-react";
 import {
@@ -21,7 +22,7 @@ interface Client {
   dic: string | null;
   created_at: string;
   status: string;
-  protocols: { count: number }[];
+  protocols: { count: number }[] | null;
 }
 
 interface ClientsTableProps {
@@ -86,7 +87,7 @@ export const ClientsTable = ({ clients }: ClientsTableProps) => {
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">
-                    {client.protocols[0]?.count || 0}
+                    {client.protocols && client.protocols[0] ? client.protocols[0].count : 0}
                   </Badge>
                 </TableCell>
                 <TableCell>
