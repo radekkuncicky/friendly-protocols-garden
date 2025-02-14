@@ -268,28 +268,23 @@ export const ProtocolsHeader = () => {
                     <FormItem className="flex flex-col">
                       <FormLabel>Klient</FormLabel>
                       <div className="flex gap-2">
-                        <Popover 
-                          open={openClientCombobox} 
-                          onOpenChange={setOpenClientCombobox}
-                        >
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Input
-                                placeholder={isLoadingClients ? "Načítání..." : "Vyberte nebo napište jméno klienta"}
-                                value={searchValue}
-                                onChange={(e) => {
-                                  setSearchValue(e.target.value);
-                                  setOpenClientCombobox(true);
-                                }}
-                                className="w-full"
-                                autoComplete="off"
-                              />
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[400px] p-0" align="start">
-                            {renderClientContent()}
-                          </PopoverContent>
-                        </Popover>
+                        <div className="relative w-full">
+                          <Input
+                            placeholder={isLoadingClients ? "Načítání..." : "Vyberte nebo napište jméno klienta"}
+                            value={searchValue}
+                            onChange={(e) => {
+                              setSearchValue(e.target.value);
+                              setOpenClientCombobox(true);
+                            }}
+                            className="w-full"
+                            autoComplete="off"
+                          />
+                          {openClientCombobox && (
+                            <div className="absolute w-full mt-1 z-50 bg-popover rounded-md border shadow-md">
+                              {renderClientContent()}
+                            </div>
+                          )}
+                        </div>
                         <Button
                           type="button"
                           variant="outline"
