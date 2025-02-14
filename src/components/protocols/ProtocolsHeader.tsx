@@ -98,8 +98,9 @@ export const ProtocolsHeader = () => {
           content: {
             type: data.type,
             items: data.items
-          },
-          status: 'draft'
+          } as Json,
+          status: 'draft',
+          protocol_number: ''
         }])
         .select()
         .single();
@@ -130,9 +131,10 @@ export const ProtocolsHeader = () => {
       const { data: protocol, error } = await supabase
         .from('protocols')
         .insert([{
-          content: template.content,
+          content: template.content as Json,
           status: 'draft',
-          template_id: template.id
+          template_id: template.id,
+          protocol_number: ''
         }])
         .select()
         .single();
