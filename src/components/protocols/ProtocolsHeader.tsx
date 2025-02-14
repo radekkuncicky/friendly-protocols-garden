@@ -1,4 +1,4 @@
-import { PlusCircle, Copy, Search, Plus, Trash2 } from "lucide-react";
+import { PlusCircle, Copy, Search, Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -177,6 +177,42 @@ export const ProtocolsHeader = () => {
     form.setValue("items", currentItems.filter((_, i) => i !== index));
   };
 
+  const renderClientSelection = () => {
+    if (isLoadingClients) {
+      return (
+        <div className="flex items-center justify-center py-6">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span className="ml-2">Načítání klientů...</span>
+        </div>
+      );
+    }
+
+    if (!clients?.length) {
+      return (
+        <div className="p-4 text-center text-sm text-muted-foreground">
+          Žádní klienti k dispozici
+        </div>
+      );
+    }
+
+    return (
+      <CommandGroup>
+        {clients.map((client) => (
+          <CommandItem
+            key={client.id}
+            value={client.name}
+            onSelect={() => {
+              form.setValue("client_id", client.id);
+              setOpenClientCombobox(false);
+            }}
+          >
+            {client.name}
+          </CommandItem>
+        ))}
+      </CommandGroup>
+    );
+  };
+
   return (
     <div className="flex justify-between items-center">
       <h1 className="text-3xl font-bold">Protokoly</h1>
@@ -240,7 +276,11 @@ export const ProtocolsHeader = () => {
                                 {field.value
                                   ? clients?.find((client) => client.id === field.value)?.name
                                   : isLoadingClients ? "Načítání..." : "Vyberte klienta"}
-                                <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                {isLoadingClients ? (
+                                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                )}
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
@@ -248,20 +288,7 @@ export const ProtocolsHeader = () => {
                             <Command>
                               <CommandInput placeholder="Hledat klienta..." />
                               <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
-                              <CommandGroup>
-                                {clients.map((client) => (
-                                  <CommandItem
-                                    key={client.id}
-                                    value={client.name}
-                                    onSelect={() => {
-                                      form.setValue("client_id", client.id);
-                                      setOpenClientCombobox(false);
-                                    }}
-                                  >
-                                    {client.name}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
+                              {renderClientSelection()}
                             </Command>
                           </PopoverContent>
                         </Popover>
