@@ -1,4 +1,3 @@
-
 import { PlusCircle, Copy, Search, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -66,7 +65,7 @@ export const ProtocolsHeader = () => {
     }
   });
 
-  const { data: clients } = useQuery({
+  const { data: clients = [], isLoading: isLoadingClients } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -74,7 +73,7 @@ export const ProtocolsHeader = () => {
         .select("*")
         .eq("status", "active");
       if (error) throw error;
-      return data;
+      return data || [];
     }
   });
 
@@ -236,10 +235,11 @@ export const ProtocolsHeader = () => {
                                 variant="outline"
                                 role="combobox"
                                 className="w-full justify-between"
+                                disabled={isLoadingClients}
                               >
                                 {field.value
                                   ? clients?.find((client) => client.id === field.value)?.name
-                                  : "Vyberte klienta"}
+                                  : isLoadingClients ? "Načítání..." : "Vyberte klienta"}
                                 <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>
@@ -249,7 +249,7 @@ export const ProtocolsHeader = () => {
                               <CommandInput placeholder="Hledat klienta..." />
                               <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
                               <CommandGroup>
-                                {clients?.map((client) => (
+                                {clients.map((client) => (
                                   <CommandItem
                                     key={client.id}
                                     value={client.name}
