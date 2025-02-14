@@ -35,7 +35,6 @@ import {
 import { CreateClientSheet } from "@/components/clients/CreateClientSheet";
 
 const formSchema = z.object({
-  protocol_number: z.string().min(1, "Číslo protokolu je povinné"),
   client_id: z.string().min(1, "Klient je povinný"),
   type: z.string().min(1, "Typ protokolu je povinný"),
   items: z.array(z.object({
@@ -60,7 +59,6 @@ export const ProtocolsHeader = () => {
   const form = useForm<NewProtocolForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      protocol_number: "",
       client_id: "",
       type: "",
       items: [{ name: "", quantity: "", unit: "ks" }]
@@ -96,7 +94,6 @@ export const ProtocolsHeader = () => {
       const { data: protocol, error } = await supabase
         .from('protocols')
         .insert([{
-          protocol_number: data.protocol_number,
           client_id: data.client_id,
           content: {
             type: data.type,
@@ -133,7 +130,6 @@ export const ProtocolsHeader = () => {
       const { data: protocol, error } = await supabase
         .from('protocols')
         .insert([{
-          protocol_number: `${new Date().getFullYear()}-${Math.floor(Math.random() * 1000)}`,
           content: template.content,
           status: 'draft',
           template_id: template.id
@@ -247,20 +243,6 @@ export const ProtocolsHeader = () => {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
-                <FormField
-                  control={form.control}
-                  name="protocol_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Číslo protokolu</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Zadejte číslo protokolu" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="client_id"

@@ -224,6 +224,30 @@ export type Database = {
         }
         Relationships: []
       }
+      protocol_numbers: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_number: number
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_number: number
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_number?: number
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
       protocols: {
         Row: {
           client_id: string | null
@@ -471,6 +495,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_protocol_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_minimum_role: {
         Args: {
           required_role: Database["public"]["Enums"]["app_role"]
