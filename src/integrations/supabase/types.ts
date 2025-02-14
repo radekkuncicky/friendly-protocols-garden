@@ -442,6 +442,7 @@ export type Database = {
           signature_required: boolean
           status: string
           updated_at: string
+          usage_count: number | null
         }
         Insert: {
           category?: string | null
@@ -454,6 +455,7 @@ export type Database = {
           signature_required?: boolean
           status?: string
           updated_at?: string
+          usage_count?: number | null
         }
         Update: {
           category?: string | null
@@ -466,6 +468,7 @@ export type Database = {
           signature_required?: boolean
           status?: string
           updated_at?: string
+          usage_count?: number | null
         }
         Relationships: []
       }
