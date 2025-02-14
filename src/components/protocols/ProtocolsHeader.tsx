@@ -196,24 +196,29 @@ export const ProtocolsHeader = () => {
     }
 
     return (
-      <Command>
-        <CommandInput placeholder="Hledat klienta..." />
-        <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
-        <CommandGroup>
-          {clients.map((client) => (
-            <CommandItem
-              key={client.id}
-              value={client.name}
-              onSelect={() => {
-                form.setValue("client_id", client.id);
-                setOpenClientCombobox(false);
-              }}
-            >
-              {client.name}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </Command>
+      <div className="relative">
+        <Command shouldFilter={false}>
+          <CommandInput 
+            placeholder="Hledat klienta..."
+            value={clients.find((client) => client.id === form.getValues("client_id"))?.name || ""}
+          />
+          <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
+          <CommandGroup>
+            {clients.map((client) => (
+              <CommandItem
+                key={client.id}
+                value={client.name}
+                onSelect={() => {
+                  form.setValue("client_id", client.id);
+                  setOpenClientCombobox(false);
+                }}
+              >
+                {client.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </div>
     );
   };
 
@@ -268,7 +273,10 @@ export const ProtocolsHeader = () => {
                     <FormItem className="flex flex-col">
                       <FormLabel>Klient</FormLabel>
                       <div className="flex gap-2">
-                        <Popover open={openClientCombobox} onOpenChange={setOpenClientCombobox}>
+                        <Popover 
+                          open={openClientCombobox} 
+                          onOpenChange={setOpenClientCombobox}
+                        >
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -288,7 +296,7 @@ export const ProtocolsHeader = () => {
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-[400px] p-0">
+                          <PopoverContent className="w-[400px] p-0" align="start">
                             {renderClientContent()}
                           </PopoverContent>
                         </Popover>
