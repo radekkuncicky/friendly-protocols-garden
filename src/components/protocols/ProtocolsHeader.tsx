@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TemplateGrid } from "@/components/templates/TemplateGrid";
