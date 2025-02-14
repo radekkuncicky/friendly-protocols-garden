@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
@@ -21,10 +22,16 @@ const Clients = () => {
         .select(`
           *,
           protocols:protocols(count)
-        `);
+        `)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      
+      // Ensure protocols is always an array with at least one item containing count
+      return data.map(client => ({
+        ...client,
+        protocols: client.protocols || [{ count: 0 }]
+      }));
     },
   });
 
