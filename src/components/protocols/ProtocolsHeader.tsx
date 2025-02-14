@@ -286,20 +286,16 @@ export const ProtocolsHeader = () => {
                         >
                           <PopoverTrigger asChild>
                             <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
+                              <Input
+                                placeholder={isLoadingClients ? "Načítání..." : "Vyberte klienta"}
+                                value={searchValue}
+                                onChange={(e) => {
+                                  setSearchValue(e.target.value);
+                                  setOpenClientCombobox(true);
+                                }}
                                 onClick={() => setOpenClientCombobox(true)}
-                                className="w-full justify-between"
-                                disabled={isLoadingClients}
-                              >
-                                {searchValue || (isLoadingClients ? "Načítání..." : "Vyberte klienta")}
-                                {isLoadingClients ? (
-                                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                )}
-                              </Button>
+                                className="w-full"
+                              />
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-[400px] p-0" align="start">
