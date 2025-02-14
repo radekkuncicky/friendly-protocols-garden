@@ -1,10 +1,9 @@
 
-import { PlusCircle, Copy } from "lucide-react";
+import { PlusCircle, Copy, Search, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,9 +13,36 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TemplateGrid } from "@/components/templates/TemplateGrid";
 import { useState } from "react";
 import { Template } from "@/types/template";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CreateClientSheet } from "@/components/clients/CreateClientSheet";
 
 const formSchema = z.object({
-  protocol_number: z.string().min(1, "Číslo protokolu je povinné")
+  protocol_number: z.string().min(1, "Číslo protokolu je povinné"),
+  client_id: z.string().min(1, "Klient je povinný"),
+  type: z.string().min(1, "Typ protokolu je povinný"),
+  items: z.array(z.object({
+    name: z.string().min(1, "Název položky je povinný"),
+    quantity: z.string().min(1, "Množství je povinné"),
+    unit: z.string().min(1, "Jednotka je povinná")
+  }))
 });
 
 type NewProtocolForm = z.infer<typeof formSchema>;
@@ -25,12 +51,30 @@ export const ProtocolsHeader = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+  const [isNewProtocolOpen, setIsNewProtocolOpen] = useState(false);
+  const [isNewClientOpen, setIsNewClientOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [openClientCombobox, setOpenClientCombobox] = useState(false);
 
   const form = useForm<NewProtocolForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      protocol_number: ""
+      protocol_number: "",
+      client_id: "",
+      type: "",
+      items: [{ name: "", quantity: "", unit: "ks" }]
+    }
+  });
+
+  const { data: clients } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("*")
+        .eq("status", "active");
+      if (error) throw error;
+      return data;
     }
   });
 
@@ -52,7 +96,11 @@ export const ProtocolsHeader = () => {
         .from('protocols')
         .insert([{
           protocol_number: data.protocol_number,
-          content: {},
+          client_id: data.client_id,
+          content: {
+            type: data.type,
+            items: data.items
+          },
           status: 'draft'
         }])
         .select()
@@ -67,6 +115,7 @@ export const ProtocolsHeader = () => {
         description: "Nový protokol byl úspěšně vytvořen."
       });
       form.reset();
+      setIsNewProtocolOpen(false);
     },
     onError: error => {
       console.error('Error creating protocol:', error);
@@ -119,6 +168,16 @@ export const ProtocolsHeader = () => {
     createFromTemplateMutation.mutate(template);
   };
 
+  const addItem = () => {
+    const currentItems = form.getValues("items");
+    form.setValue("items", [...currentItems, { name: "", quantity: "", unit: "ks" }]);
+  };
+
+  const removeItem = (index: number) => {
+    const currentItems = form.getValues("items");
+    form.setValue("items", currentItems.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="flex justify-between items-center">
       <h1 className="text-3xl font-bold">Protokoly</h1>
@@ -136,17 +195,17 @@ export const ProtocolsHeader = () => {
           </DialogContent>
         </Dialog>
 
-        <Sheet>
-          <SheetTrigger asChild>
+        <Dialog open={isNewProtocolOpen} onOpenChange={setIsNewProtocolOpen}>
+          <DialogTrigger asChild>
             <Button className="bg-amber-500 hover:bg-amber-400 text-gray-950">
               <PlusCircle className="mr-2 h-4 w-4" />
               Nový protokol
             </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Vytvořit nový protokol</SheetTitle>
-            </SheetHeader>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Vytvořit nový protokol</DialogTitle>
+            </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
                 <FormField
@@ -162,13 +221,168 @@ export const ProtocolsHeader = () => {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="client_id"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Klient</FormLabel>
+                      <div className="flex gap-2">
+                        <Popover open={openClientCombobox} onOpenChange={setOpenClientCombobox}>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className="w-full justify-between"
+                              >
+                                {field.value
+                                  ? clients?.find((client) => client.id === field.value)?.name
+                                  : "Vyberte klienta"}
+                                <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[400px] p-0">
+                            <Command>
+                              <CommandInput placeholder="Hledat klienta..." />
+                              <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
+                              <CommandGroup>
+                                {clients?.map((client) => (
+                                  <CommandItem
+                                    key={client.id}
+                                    value={client.name}
+                                    onSelect={() => {
+                                      form.setValue("client_id", client.id);
+                                      setOpenClientCombobox(false);
+                                    }}
+                                  >
+                                    {client.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsNewClientOpen(true)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Typ protokolu</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Vyberte typ protokolu" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="delivery">Předávací</SelectItem>
+                          <SelectItem value="inspection">Kontrolní</SelectItem>
+                          <SelectItem value="installation">Instalační</SelectItem>
+                          <SelectItem value="maintenance">Servisní</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Položky</FormLabel>
+                    <Button type="button" variant="outline" onClick={addItem}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Přidat položku
+                    </Button>
+                  </div>
+                  
+                  {form.watch("items").map((_, index) => (
+                    <div key={index} className="grid grid-cols-4 gap-2">
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input placeholder="Název" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.quantity`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input type="number" placeholder="Množství" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.unit`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Jednotka" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="ks">ks</SelectItem>
+                                <SelectItem value="m">m</SelectItem>
+                                <SelectItem value="kg">kg</SelectItem>
+                                <SelectItem value="l">l</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => removeItem(index)}
+                        className="self-end"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
                 <Button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-gray-950">
                   Vytvořit protokol
                 </Button>
               </form>
             </Form>
-          </SheetContent>
-        </Sheet>
+          </DialogContent>
+        </Dialog>
+
+        <CreateClientSheet
+          open={isNewClientOpen}
+          onOpenChange={setIsNewClientOpen}
+        />
       </div>
     </div>
   );
