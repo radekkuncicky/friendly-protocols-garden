@@ -189,26 +189,12 @@ export const ProtocolsHeader = () => {
       );
     }
 
-    if (!clients?.length) {
-      return (
-        <div className="p-4 text-center text-sm text-muted-foreground">
-          Žádní klienti k dispozici
-        </div>
-      );
-    }
-
-    const filteredClients = clients.filter((client) =>
+    const filteredClients = clients?.filter((client) =>
       client.name.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    ) || [];
 
     return (
       <Command>
-        <CommandInput 
-          placeholder="Hledat klienta..."
-          value={searchValue}
-          onValueChange={setSearchValue}
-          className="hidden"
-        />
         <CommandList>
           <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
           <CommandGroup>
@@ -296,6 +282,7 @@ export const ProtocolsHeader = () => {
                                   setOpenClientCombobox(true);
                                 }}
                                 className="w-full"
+                                autoComplete="off"
                               />
                             </FormControl>
                           </PopoverTrigger>
