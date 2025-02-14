@@ -54,6 +54,7 @@ export const ProtocolsHeader = () => {
   const [isNewClientOpen, setIsNewClientOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [openClientCombobox, setOpenClientCombobox] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const form = useForm<NewProtocolForm>({
     resolver: zodResolver(formSchema),
@@ -195,22 +196,28 @@ export const ProtocolsHeader = () => {
       );
     }
 
+    const filteredClients = clients.filter((client) =>
+      client.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
+
     return (
       <div className="relative">
-        <Command shouldFilter={false}>
+        <Command>
           <CommandInput 
             placeholder="Hledat klienta..."
-            value={clients.find((client) => client.id === form.getValues("client_id"))?.name || ""}
+            value={searchValue}
+            onValueChange={setSearchValue}
           />
           <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
           <CommandGroup>
-            {clients.map((client) => (
+            {filteredClients.map((client) => (
               <CommandItem
                 key={client.id}
                 value={client.name}
                 onSelect={() => {
                   form.setValue("client_id", client.id);
                   setOpenClientCombobox(false);
+                  setSearchValue(client.name);
                 }}
               >
                 {client.name}
@@ -282,12 +289,11 @@ export const ProtocolsHeader = () => {
                               <Button
                                 variant="outline"
                                 role="combobox"
+                                onClick={() => setOpenClientCombobox(true)}
                                 className="w-full justify-between"
                                 disabled={isLoadingClients}
                               >
-                                {field.value
-                                  ? clients?.find((client) => client.id === field.value)?.name
-                                  : isLoadingClients ? "Načítání..." : "Vyberte klienta"}
+                                {searchValue || (isLoadingClients ? "Načítání..." : "Vyberte klienta")}
                                 {isLoadingClients ? (
                                   <Loader2 className="ml-2 h-4 w-4 animate-spin" />
                                 ) : (
