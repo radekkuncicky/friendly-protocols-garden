@@ -202,7 +202,7 @@ export const ProtocolsHeader = () => {
               Nový protokol
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Vytvořit nový protokol</DialogTitle>
             </DialogHeader>
