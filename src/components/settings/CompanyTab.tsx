@@ -11,6 +11,7 @@ import { useSettingsData } from "@/hooks/useSettingsData";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Form } from "@/components/ui/form";
 
 const companyFormSchema = z.object({
   company_name: z.string().min(1, "Název společnosti je povinný"),
@@ -83,20 +84,22 @@ export function CompanyTab() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <CompanyBasicInfo form={form} />
-            <CompanyIdentification form={form} />
-            <CompanyContact form={form} />
-            
-            <div className="flex justify-end">
-              <Button 
-                type="submit"
-                disabled={updateMutation.isPending}
-              >
-                {updateMutation.isPending ? "Ukládání..." : "Uložit změny"}
-              </Button>
-            </div>
-          </form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <CompanyBasicInfo form={form} />
+              <CompanyIdentification form={form} />
+              <CompanyContact form={form} />
+              
+              <div className="flex justify-end">
+                <Button 
+                  type="submit"
+                  disabled={updateMutation.isPending}
+                >
+                  {updateMutation.isPending ? "Ukládání..." : "Uložit změny"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

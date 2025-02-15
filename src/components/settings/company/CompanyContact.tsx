@@ -1,10 +1,17 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { CompanyInfoFormValues } from "../CompanyInfoForm";
 
 interface CompanyContactProps {
-  form: UseFormReturn<CompanyInfoFormValues>;
+  form: UseFormReturn<{
+    company_name: string;
+    company_address?: string;
+    company_ico?: string;
+    company_dic?: string;
+    company_email?: string;
+    company_phone?: string;
+  }>;
 }
 
 export function CompanyContact({ form }: CompanyContactProps) {
