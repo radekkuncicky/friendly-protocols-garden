@@ -10,7 +10,9 @@ import { TemplatesSearch } from "@/components/templates/TemplatesSearch";
 import { TemplateTabs } from "@/components/templates/TemplateTabs";
 import { useTemplates } from "@/hooks/useTemplates";
 import { Template } from "@/types/template";
-import { setupInitialTemplates } from "@/lib/initialTemplates";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Templates = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -30,14 +32,6 @@ const Templates = () => {
     deleteTemplate,
   } = useTemplates();
 
-  // Initialize templates when the component mounts
-  useEffect(() => {
-    const initTemplates = async () => {
-      await setupInitialTemplates();
-    };
-    initTemplates();
-  }, []);
-
   useEffect(() => {
     const fetchUserRole = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -55,20 +49,6 @@ const Templates = () => {
     };
     fetchUserRole();
   }, []);
-
-  const filteredTemplates = templates?.filter(template => {
-    const searchLower = searchQuery.toLowerCase();
-    const nameMatch = template.name.toLowerCase().includes(searchLower);
-    const descriptionMatch = template.content?.description ? 
-      template.content.description.toLowerCase().includes(searchLower) : 
-      false;
-    const typeMatch = template.template_type ? 
-      template.template_type.toLowerCase().includes(searchLower) : 
-      false;
-    return nameMatch || descriptionMatch || typeMatch;
-  });
-
-  const categories = [...new Set(filteredTemplates?.map((t) => t.category || "Obecné"))];
 
   if (isLoading) {
     return (
@@ -96,6 +76,34 @@ const Templates = () => {
     );
   }
 
+  // Show empty state if no templates exist
+  if (!templates || templates.length === 0) {
+    return (
+      <div className="space-y-6">
+        <TemplatesHeader userRole={userRole} onCreateClick={() => setIsCreateOpen(true)} />
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+            <CardTitle className="text-xl mb-2">Žádné šablony</CardTitle>
+            <CardDescription className="text-center mb-6">
+              Zatím zde nejsou žádné šablony. Začněte vytvořením nové šablony.
+            </CardDescription>
+            {(userRole === 'admin' || userRole === 'manager') && (
+              <Button onClick={() => setIsCreateOpen(true)}>
+                Vytvořit první šablonu
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+        <CreateTemplateDialog
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
+        />
+      </div>
+    );
+  }
+
+  // Normal view with templates
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -108,8 +116,18 @@ const Templates = () => {
       </div>
 
       <TemplateTabs
-        categories={categories}
-        templates={filteredTemplates || []}
+        categories={[...new Set(templates?.map((t) => t.category || "Obecné"))]}
+        templates={templates.filter(template => {
+          const searchLower = searchQuery.toLowerCase();
+          const nameMatch = template.name.toLowerCase().includes(searchLower);
+          const descriptionMatch = template.content?.description ? 
+            template.content.description.toLowerCase().includes(searchLower) : 
+            false;
+          const typeMatch = template.template_type ? 
+            template.template_type.toLowerCase().includes(searchLower) : 
+            false;
+          return nameMatch || descriptionMatch || typeMatch;
+        })}
         userRole={userRole}
         onPreview={(template) => {
           setSelectedTemplate(template);
