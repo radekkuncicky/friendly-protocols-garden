@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -46,10 +47,14 @@ const Templates = () => {
     fetchUserRole();
   }, []);
 
-  const filteredTemplates = templates?.filter(template =>
-    template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    template.content.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTemplates = templates?.filter(template => {
+    const searchLower = searchQuery.toLowerCase();
+    const nameMatch = template.name.toLowerCase().includes(searchLower);
+    const descriptionMatch = template.content?.description ? 
+      template.content.description.toLowerCase().includes(searchLower) : 
+      false;
+    return nameMatch || descriptionMatch;
+  });
 
   const categories = [...new Set(filteredTemplates?.map((t) => t.category || "Obecné"))];
 
