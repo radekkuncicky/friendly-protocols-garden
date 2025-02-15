@@ -1,0 +1,110 @@
+
+{
+  "document": {
+    "name": "Předávací protokol",
+    "format": "A4",
+    "margin": {
+      "top": "2cm",
+      "bottom": "2cm",
+      "left": "2cm",
+      "right": "2cm"
+    },
+    "header": {
+      "logo": {
+        "src": "[LOGO_PLACEHOLDER]",
+        "position": "top-left",
+        "width": "80px"
+      },
+      "company_info": {
+        "position": "top-right",
+        "font_size": "10pt",
+        "bold": true,
+        "fields": [
+          "[COMPANY_NAME]",
+          "[COMPANY_ADDRESS]",
+          "[COMPANY_PHONE]",
+          "[COMPANY_EMAIL]"
+        ]
+      }
+    },
+    "body": {
+      "title": {
+        "text": "PŘEDÁVACÍ PROTOKOL",
+        "align": "center",
+        "font_size": "16pt",
+        "bold": true,
+        "margin_bottom": "10px"
+      },
+      "protocol_info": {
+        "alignment": "center",
+        "font_size": "12pt",
+        "bold": true,
+        "fields": {
+          "Číslo protokolu": "[PROTOCOL_NUMBER]",
+          "Datum vytvoření": "[DATE]"
+        },
+        "margin_bottom": "20px"
+      },
+      "table": {
+        "headers": [
+          {
+            "text": "Popis",
+            "width": "60%",
+            "bold": true,
+            "align": "left"
+          },
+          {
+            "text": "Množství",
+            "width": "20%",
+            "bold": true,
+            "align": "center"
+          },
+          {
+            "text": "Jednotka",
+            "width": "20%",
+            "bold": true,
+            "align": "center"
+          }
+        ],
+        "rows": [
+          {
+            "dynamic": "items",
+            "columns": [
+              "[ITEM_DESCRIPTION]",
+              "[ITEM_QUANTITY]",
+              "[ITEM_UNIT]"
+            ]
+          }
+        ],
+        "border": "solid",
+        "margin_bottom": "30px"
+      },
+      "signatures": {
+        "columns": [
+          {
+            "label": "Podpis klienta:",
+            "placeholder": "[CLIENT_SIGNATURE]",
+            "align": "left",
+            "width": "50%"
+          },
+          {
+            "label": "Podpis zástupce montáže:",
+            "placeholder": "[INSTALLER_SIGNATURE]",
+            "align": "right",
+            "width": "50%"
+          }
+        ],
+        "margin_top": "30px"
+      }
+    },
+    "footer": {
+      "alignment": "center",
+      "font_size": "10pt",
+      "fields": [
+        "[COMPANY_PHONE]",
+        "[COMPANY_EMAIL]",
+        "[COMPANY_ADDRESS]"
+      ]
+    }
+  }
+}

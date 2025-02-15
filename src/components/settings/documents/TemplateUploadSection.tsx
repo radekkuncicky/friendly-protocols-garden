@@ -12,98 +12,47 @@ export function TemplateUploadSection() {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleTemplateUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("Upload triggered", event.target.files);
-    
     if (!event.target.files || !event.target.files[0]) {
-      console.log("No file selected");
       return;
     }
 
     setIsUploading(true);
     const file = event.target.files[0];
-    const fileExt = file.name.split('.').pop()?.toLowerCase();
-    const allowedTypes = ['docx'];
-
-    console.log("File details:", {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      extension: fileExt
-    });
-
-    if (!fileExt || !allowedTypes.includes(fileExt)) {
-      toast({
-        title: "Nepodporovaný formát",
-        description: "Povolený formát je pouze DOCX",
-        variant: "destructive",
-      });
-      setIsUploading(false);
-      return;
-    }
-
+    
     try {
-      // Check existing templates count
-      const { count, error: countError } = await supabase
-        .from('settings_templates')
-        .select('*', { count: 'exact' });
-
-      if (countError) {
-        console.error("Error checking template count:", countError);
-        throw countError;
-      }
-
-      console.log("Current template count:", count);
-
-      if (count && count >= 5) {
-        toast({
-          title: "Překročen limit šablon",
-          description: "Můžete nahrát maximálně 5 šablon. Nejprve některé odstraňte.",
-          variant: "destructive",
-        });
-        setIsUploading(false);
-        return;
-      }
-
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      console.log("Generated filename:", fileName);
-
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      // Upload the minimalist template JSON
+      const { error: uploadError } = await supabase.storage
         .from('document-templates')
-        .upload(fileName, file);
+        .upload('minimalist-template.json', file, {
+          contentType: 'application/json',
+          upsert: true
+        });
 
       if (uploadError) {
-        console.error("Storage upload error:", uploadError);
         throw uploadError;
       }
 
-      console.log("File uploaded successfully:", uploadData);
-
       const { data: { publicUrl } } = supabase.storage
         .from('document-templates')
-        .getPublicUrl(fileName);
+        .getPublicUrl('minimalist-template.json');
 
-      console.log("Public URL generated:", publicUrl);
+      console.log("Template uploaded successfully:", publicUrl);
 
-      const { error: dbError } = await supabase
-        .from('settings_templates')
-        .insert({
-          filename: file.name,
-          file_type: fileExt.toUpperCase(),
-          file_url: publicUrl,
-          file_size: file.size,
-          uploaded_by: (await supabase.auth.getUser()).data.user?.id
-        });
+      // Update the predefined template with the new URL
+      const { error: updateError } = await supabase
+        .from('predefined_templates')
+        .update({ file_path: publicUrl })
+        .eq('type', 'minimalist');
 
-      if (dbError) {
-        console.error("Database insert error:", dbError);
-        throw dbError;
+      if (updateError) {
+        throw updateError;
       }
 
-      queryClient.invalidateQueries({ queryKey: ['templates'] });
+      queryClient.invalidateQueries({ queryKey: ['predefined-templates'] });
       
       toast({
         title: "Šablona nahrána",
-        description: "Šablona byla úspěšně nahrána.",
+        description: "Minimalistická šablona byla úspěšně nahrána a nastavena jako výchozí.",
       });
     } catch (error: any) {
       console.error("Upload process error:", error);
@@ -114,7 +63,6 @@ export function TemplateUploadSection() {
       });
     } finally {
       setIsUploading(false);
-      // Reset the file input
       const input = document.getElementById('template-upload') as HTMLInputElement;
       if (input) input.value = '';
     }
@@ -132,7 +80,7 @@ export function TemplateUploadSection() {
       <input
         id="template-upload"
         type="file"
-        accept=".docx"
+        accept="application/json"
         className="hidden"
         onChange={handleTemplateUpload}
       />
