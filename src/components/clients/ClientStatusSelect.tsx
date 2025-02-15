@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Select,
@@ -22,25 +23,30 @@ export const ClientStatusSelect = ({ client }: ClientStatusSelectProps) => {
 
   const updateStatus = useMutation({
     mutationFn: async (status: string) => {
-      const { data, error } = await supabase
+      // First update the client status
+      const { data: updatedClient, error: updateError } = await supabase
         .from("clients")
         .update({ status })
         .eq("id", client.id)
-        .select()
+        .select("*")
         .single();
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      // Log the status change
-      await supabase.from("client_activity_logs").insert({
-        client_id: client.id,
-        action_type: "status_change",
-        description: `Status klienta byl změněn na ${
-          status === "active" ? "aktivní" : "neaktivní"
-        }`,
-      });
+      // Then log the activity
+      const { error: logError } = await supabase
+        .from("client_activity_logs")
+        .insert({
+          client_id: client.id,
+          action_type: "status_change",
+          description: `Status klienta byl změněn na ${
+            status === "active" ? "aktivní" : "neaktivní"
+          }`,
+        });
 
-      return data;
+      if (logError) throw logError;
+
+      return updatedClient;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
@@ -53,7 +59,8 @@ export const ClientStatusSelect = ({ client }: ClientStatusSelectProps) => {
         description: "Status klienta byl úspěšně změněn.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Update status error:", error);
       toast({
         title: "Chyba",
         description: "Nepodařilo se změnit status klienta.",

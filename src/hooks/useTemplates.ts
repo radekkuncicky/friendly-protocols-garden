@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,13 +10,12 @@ export const useTemplates = () => {
   const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
+      const excludedNames = ['Standardní protokol', 'Klasický protokol', 'Minimalistický protokol'];
       const { data, error } = await supabase
         .from("templates")
         .select("*")
         .is('template_type', null)
-        .neq('name', 'Standardní protokol')
-        .neq('name', 'Klasický protokol')
-        .neq('name', 'Minimalistický protokol')
+        .filter('name', 'not.in', `(${excludedNames.map(name => `'${name}'`).join(',')})`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
