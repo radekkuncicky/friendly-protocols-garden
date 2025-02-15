@@ -460,6 +460,36 @@ export type Database = {
           },
         ]
       }
+      system_templates: {
+        Row: {
+          configuration: Json
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          type: Database["public"]["Enums"]["system_template_type"]
+          updated_at: string
+        }
+        Insert: {
+          configuration?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          type: Database["public"]["Enums"]["system_template_type"]
+          updated_at?: string
+        }
+        Update: {
+          configuration?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          type?: Database["public"]["Enums"]["system_template_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       templates: {
         Row: {
           category: string | null
@@ -473,6 +503,9 @@ export type Database = {
           preview_image: string | null
           signature_required: boolean
           status: string
+          system_template_type:
+            | Database["public"]["Enums"]["system_template_type"]
+            | null
           template_path: string | null
           template_type: string | null
           updated_at: string
@@ -491,6 +524,9 @@ export type Database = {
           preview_image?: string | null
           signature_required?: boolean
           status?: string
+          system_template_type?:
+            | Database["public"]["Enums"]["system_template_type"]
+            | null
           template_path?: string | null
           template_type?: string | null
           updated_at?: string
@@ -509,6 +545,9 @@ export type Database = {
           preview_image?: string | null
           signature_required?: boolean
           status?: string
+          system_template_type?:
+            | Database["public"]["Enums"]["system_template_type"]
+            | null
           template_path?: string | null
           template_type?: string | null
           updated_at?: string
@@ -569,6 +608,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "manager" | "worker"
       document_template_type: "standard" | "classic" | "minimalist"
+      system_template_type: "minimalistic" | "classic" | "detailed"
     }
     CompositeTypes: {
       [_ in never]: never
