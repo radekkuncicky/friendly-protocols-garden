@@ -15,7 +15,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -44,16 +43,18 @@ export function ProtocolActionButtons({
 
   const handleDownload = async (format: 'docx' | 'pdf') => {
     try {
-      const { data, error } = await supabase.functions.invoke('process-document', {
+      const response = await supabase.functions.invoke('process-document', {
         body: { protocolId: protocol.id, format }
       });
 
-      if (error) throw error;
+      if (response.error) throw response.error;
 
-      // Create a download link for the returned blob
-      const blob = new Blob([data], { 
+      // Get the blob from the response
+      const blob = new Blob([response.data], { 
         type: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
       });
+
+      // Create a download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -62,6 +63,11 @@ export function ProtocolActionButtons({
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Protokol stažen",
+        description: `Protokol byl úspěšně stažen ve formátu ${format.toUpperCase()}.`,
+      });
     } catch (error) {
       console.error('Error downloading document:', error);
       toast({

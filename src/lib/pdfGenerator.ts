@@ -1,3 +1,4 @@
+
 import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
 import type { UserOptions } from 'jspdf-autotable';
