@@ -41,7 +41,26 @@ export function SystemTemplateSettings() {
 
       if (error) throw error;
       
-      return data as DocumentStyle[];
+      // Transform the data to match DocumentStyle type
+      return (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        type: item.type as DocumentStyle['type'],
+        is_active: item.is_active ?? false,
+        configuration: {
+          font: (item.configuration as any)?.font ?? 'Arial',
+          fontSize: (item.configuration as any)?.fontSize ?? '12px',
+          spacing: (item.configuration as any)?.spacing ?? '1.5',
+          margins: {
+            top: (item.configuration as any)?.margins?.top ?? '2cm',
+            bottom: (item.configuration as any)?.margins?.bottom ?? '2cm',
+            left: (item.configuration as any)?.margins?.left ?? '2cm',
+            right: (item.configuration as any)?.margins?.right ?? '2cm',
+          },
+          headerStyle: (item.configuration as any)?.headerStyle ?? 'standard',
+          footerStyle: (item.configuration as any)?.footerStyle ?? 'standard',
+        },
+      })) as DocumentStyle[];
     },
   });
 
