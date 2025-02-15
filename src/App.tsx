@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +10,6 @@ import Dashboard from "./pages/Dashboard";
 import Protocols from "./pages/Protocols";
 import Clients from "./pages/Clients";
 import Templates from "./pages/Templates";
-import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +27,6 @@ const App = () => (
             <Route path="protocols" element={<Protocols />} />
             <Route path="clients" element={<Clients />} />
             <Route path="templates" element={<Templates />} />
-            <Route path="settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

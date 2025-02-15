@@ -1,9 +1,9 @@
+
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
   FileText,
-  Settings,
   LayoutTemplate,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,20 +67,6 @@ export const SidebarNav = ({ userRole }: SidebarNavProps) => {
           Šablony
         </Button>
       </Link>
-      {(userRole === "admin" || userRole === "manager") && (
-        <Link to="/settings">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-start",
-              isActive("/settings") && "bg-gray-100 dark:bg-gray-700"
-            )}
-          >
-            <Settings className="mr-2" />
-            Nastavení
-          </Button>
-        </Link>
-      )}
     </nav>
   );
 };
