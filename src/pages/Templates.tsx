@@ -20,6 +20,7 @@ const Templates = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"mine" | "all" | "all-protocols">("all");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const {
     templates,
@@ -35,6 +36,7 @@ const Templates = () => {
     const fetchUserRole = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        setCurrentUserId(session.user.id);
         const { data: roles } = await supabase
           .from("user_roles")
           .select("role")
@@ -68,8 +70,7 @@ const Templates = () => {
 
     // Then apply tab filter
     if (activeTab === "mine") {
-      const { data: { user } } = await supabase.auth.getUser();
-      return matchesSearch && template.created_by === user?.id;
+      return matchesSearch && template.created_by === currentUserId;
     } else if (activeTab === "all-protocols") {
       return matchesSearch && template.template_type === "protocol";
     }
