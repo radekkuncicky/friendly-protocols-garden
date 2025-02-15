@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Table,
@@ -9,12 +10,23 @@ import {
 import { UserTableRow } from "./UserTableRow";
 import { EditRoleDialog } from "./EditRoleDialog";
 
+interface User {
+  id: string;
+  full_name: string;
+  email: string;
+  updated_at: string;
+  user_roles: Array<{
+    role: string;
+    user_id: string;
+  }>;
+}
+
 interface UserTableProps {
-  users: any[];
+  users: User[];
 }
 
 export const UserTable = ({ users }: UserTableProps) => {
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditRoleOpen, setIsEditRoleOpen] = useState(false);
 
   return (
