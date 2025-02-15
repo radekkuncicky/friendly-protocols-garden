@@ -6,9 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Layout, Minimize } from "lucide-react";
-import { Json } from "@/integrations/supabase/types";
 
-type SystemTemplate = {
+type DocumentStyle = {
   id: string;
   name: string;
   type: 'minimalistic' | 'classic' | 'detailed';
@@ -28,22 +27,12 @@ type SystemTemplate = {
   };
 };
 
-type RawSystemTemplate = {
-  id: string;
-  name: string;
-  type: 'minimalistic' | 'classic' | 'detailed';
-  is_active: boolean;
-  configuration: Json;
-  created_at: string;
-  updated_at: string;
-};
-
 export function SystemTemplateSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: templates, isLoading } = useQuery({
-    queryKey: ["system-templates"],
+  const { data: styles, isLoading } = useQuery({
+    queryKey: ["document-styles"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("system_templates")
@@ -52,77 +41,36 @@ export function SystemTemplateSettings() {
 
       if (error) throw error;
       
-      // Transform the raw data to match our SystemTemplate type
-      return (data as RawSystemTemplate[]).map(template => {
-        const config = template.configuration as SystemTemplate['configuration'];
-        
-        // Ensure all required fields are present
-        if (!config || typeof config.font !== 'string' || 
-            typeof config.fontSize !== 'string' || 
-            typeof config.spacing !== 'string' ||
-            !config.margins || typeof config.margins !== 'object' ||
-            typeof config.headerStyle !== 'string' ||
-            typeof config.footerStyle !== 'string') {
-          console.error('Invalid template configuration:', template.id);
-          // Provide default values if configuration is invalid
-          return {
-            id: template.id,
-            name: template.name,
-            type: template.type,
-            is_active: template.is_active,
-            configuration: {
-              font: 'Arial',
-              fontSize: '12pt',
-              spacing: '1.5',
-              margins: {
-                top: '2cm',
-                bottom: '2cm',
-                left: '2cm',
-                right: '2cm'
-              },
-              headerStyle: 'simple',
-              footerStyle: 'simple'
-            }
-          };
-        }
-
-        return {
-          id: template.id,
-          name: template.name,
-          type: template.type,
-          is_active: template.is_active,
-          configuration: config
-        };
-      }) as SystemTemplate[];
+      return data as DocumentStyle[];
     },
   });
 
   const activeMutation = useMutation({
-    mutationFn: async (templateId: string) => {
+    mutationFn: async (styleId: string) => {
       const { error } = await supabase
         .from("system_templates")
         .update({ is_active: true })
-        .eq("id", templateId);
+        .eq("id", styleId);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["system-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["document-styles"] });
       toast({
-        title: "Šablona byla aktivována",
+        title: "Styl byl aktivován",
         description: "Změna byla úspěšně uložena.",
       });
     },
     onError: (error) => {
       toast({
-        title: "Chyba při aktivaci šablony",
-        description: "Nepodařilo se aktivovat šablonu: " + error.message,
+        title: "Chyba při aktivaci stylu",
+        description: "Nepodařilo se aktivovat styl: " + error.message,
         variant: "destructive",
       });
     },
   });
 
-  const activeTemplate = templates?.find(t => t.is_active);
+  const activeStyle = styles?.find(s => s.is_active);
 
   if (isLoading) {
     return <Skeleton className="w-full h-[200px]" />;
@@ -131,40 +79,40 @@ export function SystemTemplateSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Systémové šablony</h3>
+        <h3 className="text-lg font-medium">Výchozí styl dokumentů</h3>
         <p className="text-sm text-muted-foreground">
-          Vyberte výchozí vzhled pro všechny protokoly.
+          Vyberte výchozí vzhled pro všechny protokoly
         </p>
       </div>
 
       <RadioGroup
-        value={activeTemplate?.id}
+        value={activeStyle?.id}
         onValueChange={(value) => activeMutation.mutate(value)}
         className="grid grid-cols-3 gap-4"
       >
-        {templates?.map((template) => (
+        {styles?.map((style) => (
           <Label
-            key={template.id}
-            htmlFor={template.id}
+            key={style.id}
+            htmlFor={style.id}
             className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary cursor-pointer"
           >
             <RadioGroupItem
-              value={template.id}
-              id={template.id}
+              value={style.id}
+              id={style.id}
               className="sr-only"
             />
-            {template.type === 'minimalistic' ? (
+            {style.type === 'minimalistic' ? (
               <Minimize className="mb-2 h-6 w-6" />
-            ) : template.type === 'classic' ? (
+            ) : style.type === 'classic' ? (
               <FileText className="mb-2 h-6 w-6" />
             ) : (
               <Layout className="mb-2 h-6 w-6" />
             )}
-            <span className="text-sm font-medium">{template.name}</span>
+            <span className="text-sm font-medium">{style.name}</span>
             <p className="text-xs text-muted-foreground mt-1 text-center">
-              {template.type === 'minimalistic'
+              {style.type === 'minimalistic'
                 ? 'Jednoduchý a čistý design'
-                : template.type === 'classic'
+                : style.type === 'classic'
                 ? 'Tradiční formát s důrazem na přehlednost'
                 : 'Detailní rozložení s rozšířenými možnostmi'}
             </p>
@@ -173,11 +121,11 @@ export function SystemTemplateSettings() {
       </RadioGroup>
 
       <div className="rounded-md bg-muted p-4 mt-4">
-        <h4 className="font-medium mb-2">Aktivní šablona: {activeTemplate?.name}</h4>
+        <h4 className="font-medium mb-2">Aktivní styl: {activeStyle?.name}</h4>
         <div className="text-sm text-muted-foreground">
-          <p>Font: {activeTemplate?.configuration.font}</p>
-          <p>Velikost písma: {activeTemplate?.configuration.fontSize}</p>
-          <p>Řádkování: {activeTemplate?.configuration.spacing}</p>
+          <p>Font: {activeStyle?.configuration.font}</p>
+          <p>Velikost písma: {activeStyle?.configuration.fontSize}</p>
+          <p>Řádkování: {activeStyle?.configuration.spacing}</p>
         </div>
       </div>
     </div>
