@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Save, RotateCcw } from "lucide-react";
 import { TemplateSelection } from "./TemplateSelection";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TemplateManagementTable } from "./TemplateManagementTable";
 
 interface DocumentSettingsContentProps {
   settings: any;
@@ -23,7 +22,7 @@ export function DocumentSettingsContent({
     <ScrollArea className="h-[calc(100vh-12rem)]">
       <div className="space-y-6 pr-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Nastavení dokumentu</h2>
+          <h2 className="text-2xl font-bold">Nastavení vzhledu dokumentu</h2>
           <div className="space-x-2">
             <Button
               variant="outline"
@@ -45,22 +44,17 @@ export function DocumentSettingsContent({
 
         <Card>
           <CardHeader>
-            <CardTitle>Výběr šablony</CardTitle>
+            <CardTitle>Styl dokumentu</CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-muted-foreground mb-6">
+              Vyberte vizuální styl, který bude použit pro všechny vaše protokoly. 
+              Toto nastavení ovlivňuje pouze vzhled dokumentu, ne jeho obsah.
+            </p>
             <TemplateSelection
               value={settings?.document_template_type}
               onChange={(value) => onUpdate({ document_template_type: value })}
             />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Předdefinované šablony</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TemplateManagementTable />
           </CardContent>
         </Card>
       </div>
