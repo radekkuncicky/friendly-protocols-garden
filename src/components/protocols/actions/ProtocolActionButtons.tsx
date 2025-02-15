@@ -8,7 +8,7 @@ import {
   Edit,
   MoreVertical,
   FileText,
-  FilePdf,
+  File,
   Trash2
 } from "lucide-react";
 import {
@@ -24,6 +24,9 @@ interface ProtocolActionButtonsProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onSend?: () => void;
+  userRole?: string | null;
+  status?: string;
+  clientSignature?: string | null;
 }
 
 export function ProtocolActionButtons({
@@ -31,6 +34,9 @@ export function ProtocolActionButtons({
   onEdit,
   onDelete,
   onSend,
+  userRole,
+  status,
+  clientSignature
 }: ProtocolActionButtonsProps) {
   const { toast } = useToast();
 
@@ -79,7 +85,7 @@ export function ProtocolActionButtons({
             Stáhnout jako DOCX
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleDownload('pdf')}>
-            <FilePdf className="h-4 w-4 mr-2" />
+            <File className="h-4 w-4 mr-2" />
             Stáhnout jako PDF
           </DropdownMenuItem>
         </DropdownMenuContent>
