@@ -1,9 +1,9 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CompanyInfoForm, type CompanyInfoFormValues } from "./CompanyInfoForm";
 import { LogoUpload } from "./LogoUpload";
 import { UserRolesTab } from "./users/UserRolesTab";
-import { AppearanceTab } from "./appearance/AppearanceTab";
 import { DocumentSettingsTab } from "./documents/DocumentSettingsTab";
 
 interface SettingsTabsProps {
@@ -26,7 +26,6 @@ export function SettingsTabs({
       <TabsList>
         <TabsTrigger value="company">Firemní údaje</TabsTrigger>
         <TabsTrigger value="users">Uživatelé a role</TabsTrigger>
-        <TabsTrigger value="appearance">Vzhled</TabsTrigger>
         <TabsTrigger value="documents">Nastavení dokumentů</TabsTrigger>
       </TabsList>
 
@@ -51,10 +50,6 @@ export function SettingsTabs({
 
       <TabsContent value="users">
         <UserRolesTab />
-      </TabsContent>
-
-      <TabsContent value="appearance">
-        <AppearanceTab />
       </TabsContent>
 
       <TabsContent value="documents">
