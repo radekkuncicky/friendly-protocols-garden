@@ -15,7 +15,7 @@ export const useTemplates = () => {
         .from("templates")
         .select("*")
         .is('template_type', null) // Only fetch user-created templates
-        .not('name', 'in', ['Standardní protokol', 'Klasický protokol', 'Minimalistický protokol']) // Explicitly exclude predefined templates
+        .not('name', 'in', ('Standardní protokol,Klasický protokol,Minimalistický protokol').split(',')) // Explicitly exclude predefined templates
         .order("created_at", { ascending: false });
 
       if (error) throw error;
