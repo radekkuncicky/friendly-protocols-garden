@@ -53,13 +53,47 @@ export function SystemTemplateSettings() {
       if (error) throw error;
       
       // Transform the raw data to match our SystemTemplate type
-      return (data as RawSystemTemplate[]).map(template => ({
-        id: template.id,
-        name: template.name,
-        type: template.type,
-        is_active: template.is_active,
-        configuration: template.configuration as SystemTemplate['configuration']
-      })) as SystemTemplate[];
+      return (data as RawSystemTemplate[]).map(template => {
+        const config = template.configuration as SystemTemplate['configuration'];
+        
+        // Ensure all required fields are present
+        if (!config || typeof config.font !== 'string' || 
+            typeof config.fontSize !== 'string' || 
+            typeof config.spacing !== 'string' ||
+            !config.margins || typeof config.margins !== 'object' ||
+            typeof config.headerStyle !== 'string' ||
+            typeof config.footerStyle !== 'string') {
+          console.error('Invalid template configuration:', template.id);
+          // Provide default values if configuration is invalid
+          return {
+            id: template.id,
+            name: template.name,
+            type: template.type,
+            is_active: template.is_active,
+            configuration: {
+              font: 'Arial',
+              fontSize: '12pt',
+              spacing: '1.5',
+              margins: {
+                top: '2cm',
+                bottom: '2cm',
+                left: '2cm',
+                right: '2cm'
+              },
+              headerStyle: 'simple',
+              footerStyle: 'simple'
+            }
+          };
+        }
+
+        return {
+          id: template.id,
+          name: template.name,
+          type: template.type,
+          is_active: template.is_active,
+          configuration: config
+        };
+      }) as SystemTemplate[];
     },
   });
 
