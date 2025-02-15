@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const setupInitialTemplates = async () => {
   try {
-    // Check if minimalist template exists
+    // First, ensure the template exists in the database
     const { data: existingTemplate, error: queryError } = await supabase
       .from('predefined_templates')
       .select('*')
@@ -15,12 +15,12 @@ export const setupInitialTemplates = async () => {
       return;
     }
 
+    // If template doesn't exist in the database, create it
     if (!existingTemplate) {
-      // Create minimalist template
       const minimalistTemplate = {
         name: "Minimalistický protokol",
         type: "minimalist",
-        file_path: "templates/minimalist-template.json",
+        file_path: "minimalist-template.json",
         is_active: true
       };
 
@@ -30,15 +30,20 @@ export const setupInitialTemplates = async () => {
 
       if (insertError) {
         console.error('Error creating template:', insertError);
+        return;
       }
     }
 
-    // Upload default template file if it doesn't exist
-    const { data: templateFile, error: storageError } = await supabase.storage
+    // Check if template file exists in storage
+    const { data: templateExists } = await supabase.storage
       .from('document-templates')
-      .download('templates/minimalist-template.json');
+      .list('', {
+        limit: 1,
+        search: 'minimalist-template.json'
+      });
 
-    if (storageError && storageError.message.includes('Object not found')) {
+    // If template file doesn't exist, create it
+    if (!templateExists || templateExists.length === 0) {
       const defaultTemplate = {
         document: {
           header: {
@@ -60,7 +65,7 @@ export const setupInitialTemplates = async () => {
 
       const { error: uploadError } = await supabase.storage
         .from('document-templates')
-        .upload('templates/minimalist-template.json', 
+        .upload('minimalist-template.json', 
           JSON.stringify(defaultTemplate, null, 2),
           {
             contentType: 'application/json',
@@ -70,6 +75,22 @@ export const setupInitialTemplates = async () => {
 
       if (uploadError) {
         console.error('Error uploading template:', uploadError);
+        return;
+      }
+
+      // Get the public URL for the uploaded template
+      const { data: { publicUrl } } = supabase.storage
+        .from('document-templates')
+        .getPublicUrl('minimalist-template.json');
+
+      // Update the template record with the correct file path
+      const { error: updateError } = await supabase
+        .from('predefined_templates')
+        .update({ file_path: publicUrl })
+        .eq('type', 'minimalist');
+
+      if (updateError) {
+        console.error('Error updating template path:', updateError);
       }
     }
   } catch (error) {
