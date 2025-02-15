@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
+import type { CompanyFormValues } from "@/types/company";
 
 const companyFormSchema = z.object({
   company_name: z.string().min(1, "Název společnosti je povinný"),
@@ -20,9 +21,8 @@ const companyFormSchema = z.object({
   company_dic: z.string().optional(),
   company_email: z.string().email("Neplatný email").optional(),
   company_phone: z.string().optional(),
+  protocol_numbering_format: z.string().optional(),
 });
-
-type CompanyFormValues = z.infer<typeof companyFormSchema>;
 
 export function CompanyTab() {
   const { toast } = useToast();
@@ -38,6 +38,7 @@ export function CompanyTab() {
       company_dic: settings?.company_dic || "",
       company_email: settings?.company_email || "",
       company_phone: settings?.company_phone || "",
+      protocol_numbering_format: settings?.protocol_numbering_format || "",
     },
   });
 
