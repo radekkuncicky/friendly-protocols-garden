@@ -14,8 +14,10 @@ export const useTemplates = () => {
       const { data, error } = await supabase
         .from("templates")
         .select("*")
-        .is('template_type', null) // Only fetch user-created templates
-        .not('name', 'in', ['Standardní protokol', 'Klasický protokol', 'Minimalistický protokol']) // Explicitly exclude predefined templates
+        .is('template_type', null)
+        .neq('name', 'Standardní protokol')
+        .neq('name', 'Klasický protokol')
+        .neq('name', 'Minimalistický protokol')
         .order("created_at", { ascending: false });
 
       if (error) throw error;
