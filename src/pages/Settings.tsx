@@ -1,61 +1,45 @@
+import { CompanyTab } from "@/components/settings/CompanyTab";
+import { UserRolesTab } from "@/components/settings/UserRolesTab";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DocumentSettingsTab } from "@/components/settings/documents/DocumentSettingsTab";
+import { TemplateSettingsTab } from "@/components/settings/templates/TemplateSettingsTab";
 
-import { useEffect, useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { type CompanyInfoFormValues } from "@/components/settings/CompanyInfoForm";
-import { SettingsTabs } from "@/components/settings/SettingsTabs";
-import { useSettingsData } from "@/hooks/useSettingsData";
-import { useLogoUpload } from "@/hooks/useLogoUpload";
-
-const Settings = () => {
-  const { toast } = useToast();
-  const { settings, isLoading } = useSettingsData();
-  const { currentLogo, handleLogoUpload } = useLogoUpload(settings);
-
-  const updateMutation = useMutation({
-    mutationFn: async (values: CompanyInfoFormValues) => {
-      if (!settings?.id) return;
-      
-      const { error } = await supabase
-        .from("settings")
-        .update(values)
-        .eq('id', settings.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Nastavení uloženo",
-        description: "Změny byly úspěšně uloženy.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Chyba",
-        description: "Nepodařilo se uložit změny: " + error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  if (isLoading) {
-    return <div>Načítání...</div>;
-  }
-
+export default function Settings() {
   return (
-    <div className="container mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-10">Nastavení</h1>
-      <SettingsTabs
-        settings={settings}
-        currentLogo={currentLogo}
-        onLogoUpload={handleLogoUpload}
-        onCompanyInfoSubmit={(values) => updateMutation.mutate(values)}
-        isSubmitting={updateMutation.isPending}
-      />
+    <div className="container mx-auto py-6">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Nastavení</h1>
+          <p className="text-gray-500">
+            Správa nastavení aplikace a uživatelských účtů
+          </p>
+        </div>
+
+        <Tabs defaultValue="company" className="space-y-4">
+          <TabsList className="w-full justify-start">
+            <TabsTrigger value="company">Firma</TabsTrigger>
+            <TabsTrigger value="documents">Dokumenty</TabsTrigger>
+            <TabsTrigger value="templates">Šablony</TabsTrigger>
+            <TabsTrigger value="users">Uživatelé</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="company">
+            <CompanyTab />
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <DocumentSettingsTab />
+          </TabsContent>
+
+          <TabsContent value="templates">
+            <TemplateSettingsTab />
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UserRolesTab />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
-};
-
-export default Settings;
-
+}
