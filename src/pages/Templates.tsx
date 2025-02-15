@@ -53,7 +53,10 @@ const Templates = () => {
     const descriptionMatch = template.content?.description ? 
       template.content.description.toLowerCase().includes(searchLower) : 
       false;
-    return nameMatch || descriptionMatch;
+    const typeMatch = template.template_type ? 
+      template.template_type.toLowerCase().includes(searchLower) : 
+      false;
+    return nameMatch || descriptionMatch || typeMatch;
   });
 
   const categories = [...new Set(filteredTemplates?.map((t) => t.category || "Obecné"))];

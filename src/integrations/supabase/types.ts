@@ -438,11 +438,16 @@ export type Database = {
           created_by: string | null
           id: string
           is_locked: boolean | null
+          last_used_at: string | null
           name: string
+          preview_image: string | null
           signature_required: boolean
           status: string
+          template_path: string | null
+          template_type: string | null
           updated_at: string
           usage_count: number | null
+          version: string | null
         }
         Insert: {
           category?: string | null
@@ -451,11 +456,16 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_locked?: boolean | null
+          last_used_at?: string | null
           name: string
+          preview_image?: string | null
           signature_required?: boolean
           status?: string
+          template_path?: string | null
+          template_type?: string | null
           updated_at?: string
           usage_count?: number | null
+          version?: string | null
         }
         Update: {
           category?: string | null
@@ -464,11 +474,16 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_locked?: boolean | null
+          last_used_at?: string | null
           name?: string
+          preview_image?: string | null
           signature_required?: boolean
           status?: string
+          template_path?: string | null
+          template_type?: string | null
           updated_at?: string
           usage_count?: number | null
+          version?: string | null
         }
         Relationships: []
       }

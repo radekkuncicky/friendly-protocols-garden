@@ -1,3 +1,4 @@
+
 export type Template = {
   id: string;
   name: string;
@@ -8,4 +9,9 @@ export type Template = {
   signature_required: boolean;
   created_at: string;
   created_by: string | null;
+  template_type?: string;
+  template_path?: string;
+  preview_image?: string;
+  last_used_at?: string;
+  version?: string;
 };
