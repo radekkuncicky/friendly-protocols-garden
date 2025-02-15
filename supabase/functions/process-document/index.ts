@@ -14,8 +14,10 @@ serve(async (req) => {
 
   try {
     const { protocolId, format } = await req.json()
+    console.log("Received request with protocolId:", protocolId, "format:", format);
 
     if (!protocolId || !format) {
+      console.error("Missing parameters:", { protocolId, format });
       return new Response(
         JSON.stringify({ error: 'Missing required parameters' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
@@ -38,12 +40,30 @@ serve(async (req) => {
         )
       `)
       .eq('id', protocolId)
-      .single()
+      .maybeSingle();
 
-    if (protocolError || !protocol) {
-      console.error('Error fetching protocol:', protocolError)
+    console.log("Protocol query result:", { protocol, error: protocolError });
+
+    if (protocolError) {
+      console.error('Database error when fetching protocol:', protocolError);
       return new Response(
-        JSON.stringify({ error: 'Protocol not found' }),
+        JSON.stringify({ error: 'Database error', details: protocolError.message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
+    if (!protocol) {
+      console.error('Protocol not found for ID:', protocolId);
+      return new Response(
+        JSON.stringify({ error: 'Protocol not found', id: protocolId }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
+    }
+
+    if (!protocol.predefined_templates?.file_path) {
+      console.error('No template associated with protocol:', protocolId);
+      return new Response(
+        JSON.stringify({ error: 'No template found for protocol' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
       )
     }
@@ -53,10 +73,18 @@ serve(async (req) => {
       .from('document-templates')
       .download(protocol.predefined_templates.file_path)
 
-    if (templateError || !templateFile) {
-      console.error('Error downloading template:', templateError)
+    if (templateError) {
+      console.error('Error downloading template:', templateError);
       return new Response(
-        JSON.stringify({ error: 'Template file not found' }),
+        JSON.stringify({ error: 'Template file not found', details: templateError.message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
+    }
+
+    if (!templateFile) {
+      console.error('Template file is empty');
+      return new Response(
+        JSON.stringify({ error: 'Template file is empty' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
       )
     }
@@ -69,31 +97,39 @@ serve(async (req) => {
       .replace('[CLIENT_NAME]', protocol.content.client_name || '')
       // Add more replacements as needed
 
+    console.log("Template processed successfully");
+
     // Convert to requested format
-    let finalDocument
+    let finalDocument;
+    let contentType;
     if (format === 'pdf') {
-      // Convert to PDF using a PDF library
-      // This is a placeholder - you'll need to implement actual PDF conversion
-      finalDocument = new Blob([processedContent], { type: 'application/pdf' })
+      finalDocument = new Blob([processedContent], { type: 'application/pdf' });
+      contentType = 'application/pdf';
     } else {
-      // Return as DOCX
-      finalDocument = new Blob([processedContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      finalDocument = new Blob([processedContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     }
 
+    console.log("Sending response with content type:", contentType);
+
     return new Response(
-      finalDocument,
+      await finalDocument.arrayBuffer(),
       { 
         headers: {
           ...corsHeaders,
-          'Content-Type': format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'Content-Type': contentType,
           'Content-Disposition': `attachment; filename="protocol-${protocol.protocol_number}.${format}"`,
         }
       }
     )
   } catch (error) {
-    console.error('Error processing document:', error)
+    console.error('Error processing document:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ 
+        error: 'Internal server error', 
+        details: error.message,
+        stack: error.stack
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
