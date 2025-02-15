@@ -14,6 +14,7 @@ export const useTemplates = () => {
       const { data, error } = await supabase
         .from("templates")
         .select("*")
+        .is('template_type', null) // Only fetch user-created templates
         .order("created_at", { ascending: false });
 
       if (error) throw error;
