@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Layout, Minimize } from "lucide-react";
+import { Json } from "@/integrations/supabase/types";
 
 type SystemTemplate = {
   id: string;
@@ -27,6 +28,16 @@ type SystemTemplate = {
   };
 };
 
+type RawSystemTemplate = {
+  id: string;
+  name: string;
+  type: 'minimalistic' | 'classic' | 'detailed';
+  is_active: boolean;
+  configuration: Json;
+  created_at: string;
+  updated_at: string;
+};
+
 export function SystemTemplateSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -40,7 +51,15 @@ export function SystemTemplateSettings() {
         .order("name");
 
       if (error) throw error;
-      return data as SystemTemplate[];
+      
+      // Transform the raw data to match our SystemTemplate type
+      return (data as RawSystemTemplate[]).map(template => ({
+        id: template.id,
+        name: template.name,
+        type: template.type,
+        is_active: template.is_active,
+        configuration: template.configuration as SystemTemplate['configuration']
+      })) as SystemTemplate[];
     },
   });
 
