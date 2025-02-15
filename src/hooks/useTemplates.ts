@@ -10,16 +10,33 @@ export const useTemplates = () => {
   const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
-      const excludedNames = ['Standardní protokol', 'Klasický protokol', 'Minimalistický protokol'];
-      const { data, error } = await supabase
-        .from("templates")
+      console.log("Fetching templates");
+      const { data: predefinedTemplates, error: predefinedError } = await supabase
+        .from("predefined_templates")
         .select("*")
-        .is('template_type', null)
-        .filter('name', 'not.in', `(${excludedNames.map(name => `'${name}'`).join(',')})`)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
 
-      if (error) throw error;
-      return data as Template[];
+      if (predefinedError) throw predefinedError;
+
+      // Transform predefined templates to match Template type
+      const transformedTemplates = predefinedTemplates.map(pt => ({
+        id: pt.id,
+        name: pt.name,
+        content: {
+          description: "Přednastavená šablona protokolu",
+          category: "Obecné",
+        },
+        category: "Obecné",
+        is_locked: false,
+        status: 'published',
+        signature_required: true,
+        created_at: pt.created_at,
+        template_type: pt.type,
+        template_path: pt.file_path
+      })) as Template[];
+
+      console.log("Transformed templates:", transformedTemplates);
+      return transformedTemplates;
     },
   });
 

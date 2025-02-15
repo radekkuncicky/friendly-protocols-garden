@@ -10,6 +10,7 @@ import { TemplatesSearch } from "@/components/templates/TemplatesSearch";
 import { TemplateTabs } from "@/components/templates/TemplateTabs";
 import { useTemplates } from "@/hooks/useTemplates";
 import { Template } from "@/types/template";
+import { setupInitialTemplates } from "@/lib/initialTemplates";
 
 const Templates = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -28,6 +29,14 @@ const Templates = () => {
     toggleLockMutation,
     deleteTemplate,
   } = useTemplates();
+
+  // Initialize templates when the component mounts
+  useEffect(() => {
+    const initTemplates = async () => {
+      await setupInitialTemplates();
+    };
+    initTemplates();
+  }, []);
 
   useEffect(() => {
     const fetchUserRole = async () => {
