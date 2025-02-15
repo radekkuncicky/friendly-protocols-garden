@@ -16,12 +16,12 @@ import type { CompanyFormValues } from "@/types/company";
 
 const companyFormSchema = z.object({
   company_name: z.string().min(1, "Název společnosti je povinný"),
-  company_address: z.string().optional(),
-  company_ico: z.string().optional(),
-  company_dic: z.string().optional(),
-  company_email: z.string().email("Neplatný email").optional(),
-  company_phone: z.string().optional(),
-  protocol_numbering_format: z.string().optional(),
+  company_address: z.string(),
+  company_ico: z.string(),
+  company_dic: z.string(),
+  company_email: z.string().email("Neplatný email"),
+  company_phone: z.string(),
+  protocol_numbering_format: z.string(),
 });
 
 export function CompanyTab() {

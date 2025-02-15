@@ -1,3 +1,4 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { CompanyBasicInfo } from "./company/CompanyBasicInfo";
 import { CompanyIdentification } from "./company/CompanyIdentification";
 import { CompanyContact } from "./company/CompanyContact";
+import type { CompanyFormValues } from "@/types/company";
 
 const companyInfoSchema = z.object({
   company_name: z.string().min(1, "Název společnosti je povinný"),
@@ -18,25 +20,23 @@ const companyInfoSchema = z.object({
   protocol_numbering_format: z.string().optional(),
 });
 
-export type CompanyInfoFormValues = z.infer<typeof companyInfoSchema>;
-
 interface CompanyInfoFormProps {
-  defaultValues?: CompanyInfoFormValues;
-  onSubmit: (values: CompanyInfoFormValues) => void;
+  defaultValues?: CompanyFormValues;
+  onSubmit: (values: CompanyFormValues) => void;
   isSubmitting?: boolean;
 }
 
 export function CompanyInfoForm({ defaultValues, onSubmit, isSubmitting }: CompanyInfoFormProps) {
-  const form = useForm<CompanyInfoFormValues>({
+  const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companyInfoSchema),
-    defaultValues: defaultValues || {
-      company_name: "",
-      company_address: "",
-      company_ico: "",
-      company_dic: "",
-      company_email: "",
-      company_phone: "",
-      protocol_numbering_format: "",
+    defaultValues: {
+      company_name: defaultValues?.company_name || "",
+      company_address: defaultValues?.company_address || "",
+      company_ico: defaultValues?.company_ico || "",
+      company_dic: defaultValues?.company_dic || "",
+      company_email: defaultValues?.company_email || "",
+      company_phone: defaultValues?.company_phone || "",
+      protocol_numbering_format: defaultValues?.protocol_numbering_format || "",
     },
   });
 
