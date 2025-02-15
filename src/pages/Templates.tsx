@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,8 +47,8 @@ const Templates = () => {
   }, []);
 
   const filteredTemplates = templates?.filter(template =>
-    (template.name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-    (template.content?.description?.toLowerCase() || '').includes(searchQuery.toLowerCase())
+    template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    template.content.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const categories = [...new Set(filteredTemplates?.map((t) => t.category || "Obecné"))];
