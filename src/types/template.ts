@@ -4,6 +4,7 @@ export type Template = {
   name: string;
   description?: string;
   content: {
+    description?: string;
     items?: Array<{
       name: string;
       quantity: string;
@@ -18,6 +19,11 @@ export type Template = {
       show_logo: boolean;
       show_title: boolean;
       show_page_numbers: boolean;
+      logo_position?: string;
+    };
+    body?: {
+      layout?: string;
+      font_size?: string;
     };
     footer?: {
       show_contact: boolean;

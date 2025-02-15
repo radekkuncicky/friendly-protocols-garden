@@ -28,15 +28,33 @@ export function TemplateCustomizationPanel({
 }: TemplateCustomizationPanelProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [headerConfig, setHeaderConfig] = useState(template.content.header || {});
-  const [bodyConfig, setBodyConfig] = useState(template.content.body || {});
-  const [footerConfig, setFooterConfig] = useState(template.content.footer || {});
+  const [headerConfig, setHeaderConfig] = useState(template.content.header || {
+    show_logo: true,
+    show_title: true,
+    show_page_numbers: true,
+    logo_position: 'top-left'
+  });
+  const [bodyConfig, setBodyConfig] = useState(template.content.body || {
+    layout: 'single-column',
+    font_size: 'medium'
+  });
+  const [footerConfig, setFooterConfig] = useState(template.content.footer || {
+    show_contact: true,
+    show_disclaimer: false
+  });
 
   const updateMutation = useMutation({
-    mutationFn: async (updatedTemplate: Partial<Template>) => {
+    mutationFn: async () => {
+      const updatedContent = {
+        ...template.content,
+        header: headerConfig,
+        body: bodyConfig,
+        footer: footerConfig
+      };
+
       const { data, error } = await supabase
-        .from("templates")
-        .update(updatedTemplate)
+        .from("user_templates")
+        .update({ content: updatedContent })
         .eq("id", template.id)
         .select()
         .single();
@@ -60,19 +78,6 @@ export function TemplateCustomizationPanel({
       });
     },
   });
-
-  const handleSave = () => {
-    const updatedContent = {
-      ...template.content,
-      header: headerConfig,
-      body: bodyConfig,
-      footer: footerConfig,
-    };
-
-    updateMutation.mutate({
-      content: updatedContent,
-    });
-  };
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -114,7 +119,7 @@ export function TemplateCustomizationPanel({
               <div className="space-y-2">
                 <Label>Pozice loga</Label>
                 <Select
-                  value={headerConfig.logo_position || "top-left"}
+                  value={headerConfig.logo_position}
                   onValueChange={(value) =>
                     setHeaderConfig({ ...headerConfig, logo_position: value })
                   }
@@ -137,7 +142,7 @@ export function TemplateCustomizationPanel({
               <div className="space-y-2">
                 <Label>Rozložení</Label>
                 <Select
-                  value={bodyConfig.layout || "single-column"}
+                  value={bodyConfig.layout}
                   onValueChange={(value) =>
                     setBodyConfig({ ...bodyConfig, layout: value })
                   }
@@ -155,7 +160,7 @@ export function TemplateCustomizationPanel({
               <div className="space-y-2">
                 <Label>Velikost písma</Label>
                 <Select
-                  value={bodyConfig.font_size || "medium"}
+                  value={bodyConfig.font_size}
                   onValueChange={(value) =>
                     setBodyConfig({ ...bodyConfig, font_size: value })
                   }
@@ -189,10 +194,10 @@ export function TemplateCustomizationPanel({
               <div className="flex items-center space-x-2">
                 <Switch
                   id="show-page-numbers"
-                  checked={footerConfig.show_page_numbers}
+                  checked={headerConfig.show_page_numbers}
                   onCheckedChange={(checked) =>
-                    setFooterConfig({
-                      ...footerConfig,
+                    setHeaderConfig({
+                      ...headerConfig,
                       show_page_numbers: checked,
                     })
                   }
@@ -207,7 +212,7 @@ export function TemplateCustomizationPanel({
           <Button variant="outline" onClick={onClose}>
             Zrušit
           </Button>
-          <Button onClick={handleSave}>Uložit změny</Button>
+          <Button onClick={() => updateMutation.mutate()}>Uložit změny</Button>
         </div>
       </CardContent>
     </Card>

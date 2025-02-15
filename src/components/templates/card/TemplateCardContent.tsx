@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { CardContent } from "@/components/ui/card";
 import { Template } from "@/types/template";
@@ -10,7 +11,7 @@ export const TemplateCardContent = ({ template }: TemplateCardContentProps) => {
   return (
     <CardContent>
       <p className="text-sm text-muted-foreground">
-        {template.content.description || "Bez popisu"}
+        {template.content.description || template.description || "Bez popisu"}
       </p>
       {template.signature_required && (
         <Badge variant="outline" className="mt-2">
