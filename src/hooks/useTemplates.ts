@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,9 +10,12 @@ export const useTemplates = () => {
   const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
+      const excludedNames = ['Standardní protokol', 'Klasický protokol', 'Minimalistický protokol'];
       const { data, error } = await supabase
         .from("templates")
         .select("*")
+        .is('template_type', null)
+        .filter('name', 'not.in', `(${excludedNames.map(name => `'${name}'`).join(',')})`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -51,16 +53,11 @@ export const useTemplates = () => {
 
   const duplicateMutation = useMutation({
     mutationFn: async (template: Template) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) throw new Error("No user found");
-
       const duplicatedTemplate = {
         ...template,
         id: undefined,
         name: `${template.name} (kopie)`,
         created_at: new Date().toISOString(),
-        created_by: user.id
       };
       delete duplicatedTemplate.id;
 

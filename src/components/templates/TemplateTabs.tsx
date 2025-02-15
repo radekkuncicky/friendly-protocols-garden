@@ -1,59 +1,57 @@
+import { Template } from "@/types/template";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TemplateGrid } from "./TemplateGrid";
 
-import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-
-type TemplateTab = "mine" | "all" | "all-protocols";
-
-interface TemplatesTabsProps {
-  onTabChange: (value: TemplateTab) => void;
+interface TemplateTabsProps {
+  categories: string[];
+  templates: Template[];
+  userRole: string | null;
+  onPreview: (template: Template) => void;
+  onEdit: (template: Template) => void;
+  onDuplicate: (template: Template) => void;
+  onToggleLock: (template: Template) => void;
+  onDelete: (template: Template) => void;
+  onStatusChange: (template: Template, newStatus: 'draft' | 'published') => void;
 }
 
-export const TemplateTabs = ({ onTabChange }: TemplatesTabsProps) => {
-  const [activeTab, setActiveTab] = useState<TemplateTab>("all");
-
-  const handleTabChange = (value: TemplateTab) => {
-    setActiveTab(value);
-    onTabChange(value);
-  };
-
+export const TemplateTabs = ({
+  categories,
+  templates,
+  userRole,
+  onPreview,
+  onEdit,
+  onDuplicate,
+  onToggleLock,
+  onDelete,
+  onStatusChange,
+}: TemplateTabsProps) => {
   return (
-    <div className="space-y-4">
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) => handleTabChange(value as TemplateTab)}
-        className="w-full"
-      >
+    <Tabs defaultValue={categories[0]} className="w-full">
+      <ScrollArea className="w-full">
         <TabsList className="w-full justify-start">
-          <TabsTrigger
-            value="all"
-            className={cn(
-              "flex-1 max-w-[200px]",
-              activeTab === "all" && "bg-primary text-primary-foreground"
-            )}
-          >
-            Všechny šablony
-          </TabsTrigger>
-          <TabsTrigger
-            value="mine"
-            className={cn(
-              "flex-1 max-w-[200px]",
-              activeTab === "mine" && "bg-primary text-primary-foreground"
-            )}
-          >
-            Moje šablony
-          </TabsTrigger>
-          <TabsTrigger
-            value="all-protocols"
-            className={cn(
-              "flex-1 max-w-[200px]",
-              activeTab === "all-protocols" && "bg-primary text-primary-foreground"
-            )}
-          >
-            Všechny protokoly
-          </TabsTrigger>
+          {categories.map((category) => (
+            <TabsTrigger key={category} value={category}>
+              {category}
+            </TabsTrigger>
+          ))}
         </TabsList>
-      </Tabs>
-    </div>
+      </ScrollArea>
+
+      {categories.map((category) => (
+        <TabsContent key={category} value={category}>
+          <TemplateGrid
+            templates={templates.filter((t) => (t.category || "Obecné") === category)}
+            userRole={userRole}
+            onPreview={onPreview}
+            onEdit={onEdit}
+            onDuplicate={onDuplicate}
+            onToggleLock={onToggleLock}
+            onDelete={onDelete}
+            onStatusChange={onStatusChange}
+          />
+        </TabsContent>
+      ))}
+    </Tabs>
   );
 };

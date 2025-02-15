@@ -543,12 +543,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_user_role_access: {
-        Args: {
-          user_id_to_check: string
-        }
-        Returns: boolean
-      }
       generate_protocol_number: {
         Args: Record<PropertyKey, never>
         Returns: string

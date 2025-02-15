@@ -8,7 +8,6 @@ import PreviewTemplateDialog from "@/components/templates/PreviewTemplateDialog"
 import { TemplatesHeader } from "@/components/templates/TemplatesHeader";
 import { TemplatesSearch } from "@/components/templates/TemplatesSearch";
 import { TemplateTabs } from "@/components/templates/TemplateTabs";
-import { TemplateGrid } from "@/components/templates/TemplateGrid";
 import { useTemplates } from "@/hooks/useTemplates";
 import { Template } from "@/types/template";
 
@@ -19,8 +18,6 @@ const Templates = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"mine" | "all" | "all-protocols">("all");
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const {
     templates,
@@ -36,7 +33,6 @@ const Templates = () => {
     const fetchUserRole = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        setCurrentUserId(session.user.id);
         const { data: roles } = await supabase
           .from("user_roles")
           .select("role")
@@ -51,12 +47,7 @@ const Templates = () => {
     fetchUserRole();
   }, []);
 
-  const handleTabChange = (tab: "mine" | "all" | "all-protocols") => {
-    setActiveTab(tab);
-  };
-
   const filteredTemplates = templates?.filter(template => {
-    // First apply search filter
     const searchLower = searchQuery.toLowerCase();
     const nameMatch = template.name.toLowerCase().includes(searchLower);
     const descriptionMatch = template.content?.description ? 
@@ -65,19 +56,10 @@ const Templates = () => {
     const typeMatch = template.template_type ? 
       template.template_type.toLowerCase().includes(searchLower) : 
       false;
-    
-    const matchesSearch = nameMatch || descriptionMatch || typeMatch;
-
-    // Then apply tab filter
-    if (activeTab === "mine") {
-      return matchesSearch && template.created_by === currentUserId;
-    } else if (activeTab === "all-protocols") {
-      return matchesSearch && template.template_type === "protocol";
-    }
-    
-    // "all" tab shows everything that matches search
-    return matchesSearch;
+    return nameMatch || descriptionMatch || typeMatch;
   });
+
+  const categories = [...new Set(filteredTemplates?.map((t) => t.category || "Obecné"))];
 
   if (isLoading) {
     return (
@@ -116,9 +98,8 @@ const Templates = () => {
         />
       </div>
 
-      <TemplateTabs onTabChange={handleTabChange} />
-
-      <TemplateGrid
+      <TemplateTabs
+        categories={categories}
         templates={filteredTemplates || []}
         userRole={userRole}
         onPreview={(template) => {
