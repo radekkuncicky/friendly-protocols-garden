@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Save, RotateCcw } from "lucide-react";
 import { TemplateSelection } from "./TemplateSelection";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TemplateManagementTable } from "./TemplateManagementTable";
 
 interface DocumentSettingsContentProps {
   settings: any;
@@ -51,6 +52,15 @@ export function DocumentSettingsContent({
               value={settings?.document_template_type}
               onChange={(value) => onUpdate({ document_template_type: value })}
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Předdefinované šablony</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TemplateManagementTable />
           </CardContent>
         </Card>
       </div>

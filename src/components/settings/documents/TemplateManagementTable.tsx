@@ -1,157 +1,93 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { TemplateTable } from "./template-table/TemplateTable";
-import { DeleteTemplateDialog } from "./template-table/DeleteTemplateDialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { FileCheck, FileX } from "lucide-react";
 
-interface Template {
+interface PredefinedTemplate {
   id: string;
-  filename: string;
-  file_type: string;
-  file_url: string;
-  upload_date: string;
-  is_default: boolean;
+  name: string;
+  file_path: string;
+  type: 'standard' | 'classic' | 'minimalist';
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export function TemplateManagementTable() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [deleteTemplateId, setDeleteTemplateId] = useState<string | null>(null);
-
-  const { data: templates, isLoading, error } = useQuery({
-    queryKey: ["templates"],
+  const { data: templates, isLoading } = useQuery({
+    queryKey: ["predefined-templates"],
     queryFn: async () => {
-      console.log("Fetching templates");
+      console.log("Fetching predefined templates");
       const { data, error } = await supabase
-        .from("settings_templates")
+        .from("predefined_templates")
         .select("*")
-        .order("upload_date", { ascending: false });
+        .order("created_at", { ascending: true });
 
       if (error) {
         console.error("Error fetching templates:", error);
         throw error;
       }
       console.log("Templates fetched:", data);
-      return data;
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const template = templates?.find((t) => t.id === id);
-      if (!template) return;
-
-      console.log("Starting template deletion process for:", template);
-
-      // Delete file from storage
-      const filePath = new URL(template.file_url).pathname.split("/").pop();
-      if (filePath) {
-        console.log("Deleting file from storage:", filePath);
-        const { error: storageError } = await supabase.storage
-          .from("document-templates")
-          .remove([filePath]);
-        if (storageError) {
-          console.error("Storage deletion error:", storageError);
-          throw storageError;
-        }
-      }
-
-      // Delete record from database
-      console.log("Deleting template record from database");
-      const { error: dbError } = await supabase
-        .from("settings_templates")
-        .delete()
-        .eq("id", id);
-      if (dbError) {
-        console.error("Database deletion error:", dbError);
-        throw dbError;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["templates"] });
-      toast({
-        title: "Šablona odstraněna",
-        description: "Šablona byla úspěšně odstraněna.",
-      });
-    },
-    onError: (error) => {
-      console.error("Delete mutation error:", error);
-      toast({
-        title: "Chyba",
-        description: "Nepodařilo se odstranit šablonu: " + error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const setDefaultMutation = useMutation({
-    mutationFn: async ({ id, isDefault }: { id: string; isDefault: boolean }) => {
-      const { error } = await supabase
-        .from("settings_templates")
-        .update({ is_default: isDefault })
-        .eq("id", id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["templates"] });
-      toast({
-        title: "Výchozí šablona nastavena",
-        description: "Změna byla úspěšně uložena.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Chyba",
-        description: "Nepodařilo se nastavit výchozí šablonu: " + error.message,
-        variant: "destructive",
-      });
+      return data as PredefinedTemplate[];
     },
   });
 
   if (isLoading) {
-    return <div>Načítání...</div>;
+    return <div>Načítání šablon...</div>;
   }
-
-  if (error) {
-    console.error("Template table error:", error);
-    return (
-      <div className="text-red-500">
-        Chyba při načítání šablon: {error.message}
-      </div>
-    );
-  }
-
-  const handleSetDefault = (id: string, isDefault: boolean) => {
-    setDefaultMutation.mutate({ id, isDefault });
-  };
-
-  const handleDelete = (id: string) => {
-    setDeleteTemplateId(id);
-  };
-
-  const handleConfirmDelete = () => {
-    if (deleteTemplateId) {
-      deleteMutation.mutate(deleteTemplateId);
-      setDeleteTemplateId(null);
-    }
-  };
 
   return (
-    <div>
-      <TemplateTable
-        templates={templates || []}
-        onSetDefault={handleSetDefault}
-        onDelete={handleDelete}
-      />
-
-      <DeleteTemplateDialog
-        isOpen={!!deleteTemplateId}
-        onClose={() => setDeleteTemplateId(null)}
-        onConfirm={handleConfirmDelete}
-      />
-    </div>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Název šablony</TableHead>
+          <TableHead>Typ</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Dostupnost</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {templates?.map((template) => (
+          <TableRow key={template.id}>
+            <TableCell className="font-medium">{template.name}</TableCell>
+            <TableCell>
+              <Badge variant="outline" className="capitalize">
+                {template.type === 'standard' ? 'Standardní' :
+                 template.type === 'classic' ? 'Klasická' : 
+                 'Minimalistická'}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              {template.is_active ? (
+                <Badge className="bg-green-500">
+                  <FileCheck className="mr-1 h-3 w-3" />
+                  Aktivní
+                </Badge>
+              ) : (
+                <Badge variant="destructive">
+                  <FileX className="mr-1 h-3 w-3" />
+                  Neaktivní
+                </Badge>
+              )}
+            </TableCell>
+            <TableCell>
+              {template.file_path ? (
+                <Badge variant="outline" className="text-green-600">
+                  <FileCheck className="mr-1 h-3 w-3" />
+                  Šablona připravena
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-yellow-600">
+                  <FileX className="mr-1 h-3 w-3" />
+                  Čeká na nahrání
+                </Badge>
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
