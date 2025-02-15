@@ -20,7 +20,7 @@ export default function Settings() {
           <TabsList className="w-full justify-start">
             <TabsTrigger value="company">Firma</TabsTrigger>
             <TabsTrigger value="documents">Dokumenty</TabsTrigger>
-            <TabsTrigger value="templates">Šablony</TabsTrigger>
+            <TabsTrigger value="templates">Styly dokumentů</TabsTrigger>
             <TabsTrigger value="users">Uživatelé</TabsTrigger>
           </TabsList>
 

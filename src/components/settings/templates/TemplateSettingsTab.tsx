@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SystemTemplateSettings } from "./SystemTemplateSettings";
 import { Separator } from "@/components/ui/separator";
@@ -7,7 +8,7 @@ export function TemplateSettingsTab() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Nastavení šablon</CardTitle>
+          <CardTitle>Styly dokumentů</CardTitle>
           <CardDescription>
             Správa systémových šablon a jejich výchozích hodnot
           </CardDescription>
