@@ -60,34 +60,15 @@ export const ProtocolActions = ({
     },
   });
 
-  const handleDownload = async () => {
-    try {
-      // Implementation for download functionality will be added here
-      toast({
-        title: "Stahování protokolu",
-        description: clientSignature 
-          ? "Stahování podepsaného PDF protokolu"
-          : "Stahování protokolu",
-      });
-    } catch (error) {
-      console.error('Error downloading protocol:', error);
-      toast({
-        title: "Chyba",
-        description: "Nepodařilo se stáhnout protokol. Zkuste to prosím znovu.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <>
       <ProtocolActionButtons
+        protocol={protocol}
         userRole={userRole}
         status={status}
         onView={() => setShowViewDialog(true)}
         onEdit={() => setShowEditDialog(true)}
         onSend={() => setShowSendDialog(true)}
-        onDownload={handleDownload}
         onDelete={() => setShowDeleteDialog(true)}
         clientSignature={clientSignature}
       />

@@ -24,6 +24,7 @@ interface ProtocolActionButtonsProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onSend?: () => void;
+  onView?: () => void;
   userRole?: string | null;
   status?: string;
   clientSignature?: string | null;
@@ -34,6 +35,7 @@ export function ProtocolActionButtons({
   onEdit,
   onDelete,
   onSend,
+  onView,
   userRole,
   status,
   clientSignature
@@ -98,7 +100,7 @@ export function ProtocolActionButtons({
         </Button>
       )}
 
-      {(onEdit || onDelete) && (
+      {(onEdit || onDelete || onView) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
@@ -106,13 +108,18 @@ export function ProtocolActionButtons({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {onView && (
+              <DropdownMenuItem onClick={onView}>
+                <FileText className="h-4 w-4 mr-2" />
+                Zobrazit
+              </DropdownMenuItem>
+            )}
             {onEdit && (
               <DropdownMenuItem onClick={onEdit}>
                 <Edit className="h-4 w-4 mr-2" />
                 Upravit
               </DropdownMenuItem>
             )}
-            {onEdit && onDelete && <DropdownMenuSeparator />}
             {onDelete && (
               <DropdownMenuItem
                 onClick={onDelete}
