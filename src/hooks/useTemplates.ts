@@ -11,13 +11,18 @@ export const useTemplates = () => {
   const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
+      console.log("Fetching templates...");
+      
       // First, fetch user templates
       const { data: userTemplates, error: userTemplatesError } = await supabase
         .from("user_templates")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (userTemplatesError) throw userTemplatesError;
+      if (userTemplatesError) {
+        console.error("Error fetching user templates:", userTemplatesError);
+        throw userTemplatesError;
+      }
 
       // Then fetch predefined templates
       const { data: predefinedTemplates, error: predefinedError } = await supabase
@@ -25,7 +30,10 @@ export const useTemplates = () => {
         .select("*")
         .order("created_at", { ascending: true });
 
-      if (predefinedError) throw predefinedError;
+      if (predefinedError) {
+        console.error("Error fetching predefined templates:", predefinedError);
+        throw predefinedError;
+      }
 
       // Transform predefined templates
       const transformedPredefined = predefinedTemplates.map(pt => ({
@@ -61,7 +69,7 @@ export const useTemplates = () => {
         is_active: ut.is_active,
       })) as Template[];
 
-      // Combine both types of templates
+      console.log("Templates fetched:", [...transformedUser, ...transformedPredefined]);
       return [...transformedUser, ...transformedPredefined];
     },
   });
@@ -70,6 +78,8 @@ export const useTemplates = () => {
     mutationFn: async (template: Omit<Template, 'id' | 'created_at'>) => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session?.user?.id) throw new Error("No user session");
+
+      console.log("Creating template:", template);
 
       const { data, error } = await supabase
         .from("user_templates")
@@ -84,7 +94,12 @@ export const useTemplates = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating template:", error);
+        throw error;
+      }
+      
+      console.log("Template created:", data);
       return data;
     },
     onSuccess: () => {
@@ -95,6 +110,7 @@ export const useTemplates = () => {
       });
     },
     onError: (error) => {
+      console.error("Template creation error:", error);
       toast({
         title: "Chyba při vytváření šablony",
         description: "Nepodařilo se vytvořit šablonu: " + error.message,
