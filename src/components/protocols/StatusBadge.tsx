@@ -9,7 +9,7 @@ export const StatusBadge = ({
 }: StatusBadgeProps) => {
   switch (status) {
     case "draft":
-      return <Badge variant="outline" className="flex items-center gap-1">
+      return <Badge variant="outline" className="flex items-center gap-1 bg-yellow-200 hover:bg-yellow-100">
           <Clock className="h-3 w-3" />
           Rozpracováno
         </Badge>;
