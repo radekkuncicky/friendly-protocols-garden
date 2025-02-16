@@ -80,7 +80,7 @@ export function ProtocolActionButtons({
 
   return (
     <div className="flex items-center gap-2">
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
@@ -107,7 +107,7 @@ export function ProtocolActionButtons({
       )}
 
       {(onEdit || onDelete || onView) && (
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
               <MoreVertical className="h-4 w-4" />
