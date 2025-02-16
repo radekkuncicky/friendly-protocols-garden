@@ -75,7 +75,7 @@ export const useTemplates = () => {
   });
 
   const createTemplateMutation = useMutation({
-    mutationFn: async (template: Omit<Template, 'id' | 'created_at'>) => {
+    mutationFn: async (template: Omit<Template, 'id' | 'created_at' | 'created_by'>) => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session?.user?.id) throw new Error("No user session");
 
