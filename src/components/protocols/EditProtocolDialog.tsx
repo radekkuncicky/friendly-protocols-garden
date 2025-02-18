@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,8 +24,23 @@ export const EditProtocolDialog = ({
 }: EditProtocolDialogProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [content, setContent] = useState<ProtocolContent>(protocol.content || {});
+
+  // Initialize form data when dialog opens
+  useEffect(() => {
+    if (open && protocol) {
+      // Initialize content from protocol
+      setContent(protocol.content || {});
+      
+      // If protocol has a date in content, parse and set it
+      if (protocol.content?.date) {
+        setDate(new Date(protocol.content.date));
+      } else {
+        setDate(new Date());
+      }
+    }
+  }, [open, protocol]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: { content?: ProtocolContent; manager_signature?: string; client_signature?: string; updated_at?: string }) => {
@@ -56,7 +72,10 @@ export const EditProtocolDialog = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateMutation.mutate({ 
-      content,
+      content: {
+        ...content,
+        date: date?.toISOString(), // Include the date in content
+      },
       updated_at: new Date().toISOString()
     });
   };
