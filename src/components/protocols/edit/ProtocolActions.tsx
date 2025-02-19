@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { X, Download, Send, Save } from "lucide-react";
 import { generatePDF } from "@/lib/pdfGenerator";
@@ -13,7 +14,7 @@ interface ProtocolActionsProps {
 
 export const ProtocolActions = ({ onClose, onSubmit, protocol }: ProtocolActionsProps) => {
   const { toast } = useToast();
-  const isEditable = protocol.status !== 'completed';
+  const isEditable = protocol.status === 'draft';
 
   const handleDownloadPDF = async () => {
     try {

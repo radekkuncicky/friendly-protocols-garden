@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ClientsTable } from "@/components/clients/ClientsTable";
@@ -6,6 +7,11 @@ import { ClientsFilters } from "@/components/clients/ClientsFilters";
 import { CreateClientSheet } from "@/components/clients/CreateClientSheet";
 
 const Clients = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("created_at");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
+
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
@@ -42,9 +48,19 @@ const Clients = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Klienti</h1>
-        <CreateClientSheet />
+        <CreateClientSheet 
+          open={isCreateSheetOpen} 
+          onOpenChange={setIsCreateSheetOpen}
+        />
       </div>
-      <ClientsFilters />
+      <ClientsFilters
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+      />
       <ClientsTable clients={clients} />
     </div>
   );

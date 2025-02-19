@@ -62,8 +62,8 @@ export const generatePDF = async (protocol: Protocol) => {
     doc.text('Podpis klienta', 20, currentY + 35);
   }
 
-  // Add status watermark for completed protocols
-  if (protocol.status === 'completed') {
+  // Add status watermark for signed protocols
+  if (protocol.status === 'signed') {
     doc.setFontSize(40);
     doc.setTextColor(200, 200, 200);
     // Use the correct rotation syntax for jsPDF
