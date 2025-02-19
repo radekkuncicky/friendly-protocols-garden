@@ -1,3 +1,4 @@
+
 import { PlusCircle, Copy, Search, Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -137,50 +138,28 @@ export const ProtocolsHeader = () => {
     }
   });
 
-  const createFromTemplateMutation = useMutation({
-    mutationFn: async (template: Template) => {
-      const { data: protocol, error } = await supabase
-        .from('protocols')
-        .insert([{
-          content: template.content,
-          status: 'draft',
-          template_id: template.id,
-          protocol_number: '',
-          created_by: (await supabase.auth.getSession()).data.session?.user.id
-        }])
-        .select()
-        .single();
+  const handleTemplateSelect = (template: Template) => {
+    // Convert template items to form items format
+    const templateItems = template.content.items?.map(item => ({
+      name: item.name || "",
+      quantity: item.quantity || "1",
+      unit: item.unit || "ks"
+    })) || [];
 
-      if (error) {
-        console.error('Error creating protocol:', error);
-        throw error;
-      }
-      return protocol;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['protocols'] });
-      toast({
-        title: "Protokol vytvořen",
-        description: "Nový protokol byl úspěšně vytvořen ze šablony."
-      });
-      setIsTemplateDialogOpen(false);
-    },
-    onError: error => {
-      console.error('Error creating protocol from template:', error);
-      toast({
-        title: "Chyba",
-        description: "Nepodařilo se vytvořit protokol ze šablony. Zkuste to prosím znovu.",
-        variant: "destructive"
-      });
-    }
-  });
+    // Set form values from template
+    form.reset({
+      client_id: "",
+      type: template.content.type || "",
+      items: templateItems.length > 0 ? templateItems : [{ name: "", quantity: "", unit: "ks" }]
+    });
+
+    // Close template dialog and open new protocol dialog
+    setIsTemplateDialogOpen(false);
+    setIsNewProtocolOpen(true);
+  };
 
   const onSubmit = (data: NewProtocolForm) => {
     createProtocolMutation.mutate(data);
-  };
-
-  const handleTemplateSelect = (template: Template) => {
-    createFromTemplateMutation.mutate(template);
   };
 
   const addItem = () => {
