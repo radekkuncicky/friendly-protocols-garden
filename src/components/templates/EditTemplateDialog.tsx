@@ -5,16 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TemplateCustomizationPanel } from "./TemplateCustomizationPanel";
-import { Plus, Trash2 } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Template } from "@/types/template";
 import type { Json } from "@/integrations/supabase/types";
+import { EditTemplateBasicInfo } from "./edit/EditTemplateBasicInfo";
+import { EditTemplateItems } from "./edit/EditTemplateItems";
 
 interface EditTemplateDialogProps {
   template: Template;
@@ -52,7 +48,6 @@ const EditTemplateDialog = ({
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      // Convert items to a format compatible with Json type
       const jsonItems = items.map(item => ({
         name: item.name,
         quantity: item.quantity,
@@ -141,109 +136,21 @@ const EditTemplateDialog = ({
 
           <TabsContent value="basic">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Název šablony</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Zadejte název šablony"
-                />
-              </div>
+              <EditTemplateBasicInfo
+                name={name}
+                setName={setName}
+                description={description}
+                setDescription={setDescription}
+                category={category}
+                setCategory={setCategory}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="category">Kategorie</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Vyberte kategorii" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Obecné">Obecné</SelectItem>
-                    <SelectItem value="Stavební">Stavební</SelectItem>
-                    <SelectItem value="Údržba">Údržba</SelectItem>
-                    <SelectItem value="Kontrola">Kontrola</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Popis</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  placeholder="Zadejte popis šablony"
-                />
-              </div>
-
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="items">
-                  <AccordionTrigger className="flex justify-between items-center py-2">
-                    <div className="flex items-center gap-2">
-                      <span>Položky</span>
-                      <span className="text-sm text-muted-foreground">({items.length})</span>
-                    </div>
-                    <Button type="button" variant="outline" size="sm" onClick={e => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      addItem();
-                    }}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Přidat položku
-                    </Button>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-3 pt-2">
-                      {items.map((item, index) => (
-                        <div key={index} className="grid grid-cols-4 gap-2 items-end">
-                          <div className="space-y-1.5">
-                            <Label>Název</Label>
-                            <Input 
-                              value={item.name} 
-                              onChange={e => updateItem(index, "name", e.target.value)} 
-                              placeholder="Název položky" 
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label>Množství</Label>
-                            <Input 
-                              type="number" 
-                              value={item.quantity} 
-                              onChange={e => updateItem(index, "quantity", e.target.value)} 
-                              placeholder="Množství" 
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label>Jednotka</Label>
-                            <Select 
-                              value={item.unit} 
-                              onValueChange={value => updateItem(index, "unit", value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="ks">ks</SelectItem>
-                                <SelectItem value="m">m</SelectItem>
-                                <SelectItem value="g">g</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <Button 
-                            type="button" 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => removeItem(index)} 
-                            className="h-10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+              <EditTemplateItems
+                items={items}
+                addItem={addItem}
+                removeItem={removeItem}
+                updateItem={updateItem}
+              />
 
               <div className="flex justify-end gap-2">
                 <Button
