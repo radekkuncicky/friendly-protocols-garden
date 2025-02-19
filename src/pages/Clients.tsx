@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ClientsTable } from "@/components/clients/ClientsTable";
 import { ClientsFilters } from "@/components/clients/ClientsFilters";
 import { CreateClientSheet } from "@/components/clients/CreateClientSheet";
+import type { Client } from "@/types/client";
 
 const Clients = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -12,14 +13,14 @@ const Clients = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
 
-  const { data: clients, isLoading } = useQuery({
+  const { data: clients, isLoading } = useQuery<Client[]>({
     queryKey: ["clients"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("clients")
         .select(`
           *,
-          contacts (
+          contacts!client_contacts (
             id,
             contact_type,
             contact_value,
@@ -61,7 +62,7 @@ const Clients = () => {
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
       />
-      <ClientsTable clients={clients} />
+      <ClientsTable clients={clients || []} />
     </div>
   );
 };

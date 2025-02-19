@@ -5,38 +5,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ClientDetailSheet } from "./ClientDetailSheet";
-
-interface ClientContact {
-  id: string;
-  contact_type: 'email' | 'phone';
-  contact_value: string;
-  is_primary: boolean;
-}
-
-interface Client {
-  id: string;
-  name: string;
-  ico: string | null;
-  dic: string | null;
-  created_at: string;
-  status: string;
-  contacts: ClientContact[];
-  protocols: {
-    count: number;
-  }[] | null;
-}
+import type { Client, ClientContact } from "@/types/client";
 
 interface ClientsTableProps {
   clients: Client[];
 }
 
-export const ClientsTable = ({
-  clients
-}: ClientsTableProps) => {
+export const ClientsTable = ({ clients }: ClientsTableProps) => {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
-  const getPrimaryContact = (contacts: ClientContact[], type: 'email' | 'phone') => {
-    return contacts.find(contact => contact.contact_type === type && contact.is_primary)?.contact_value;
+  const getPrimaryContact = (contacts: ClientContact[], type: string) => {
+    return contacts?.find(contact => contact.contact_type === type && contact.is_primary)?.contact_value;
   };
 
   return (
