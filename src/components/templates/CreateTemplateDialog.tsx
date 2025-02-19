@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { Json } from "@/integrations/supabase/types";
 
 interface CreateTemplateDialogProps {
   open: boolean;
@@ -79,22 +80,29 @@ const CreateTemplateDialog = ({
         return;
       }
 
-      // Create template
+      // Convert items to a format compatible with Json type
+      const jsonItems = items.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit
+      })) as Json[];
+
+      // Create template with properly typed content
       const { data, error } = await supabase
         .from("user_templates")
-        .insert([{
+        .insert({
           name,
           description,
           category,
           content: {
-            items,
+            items: jsonItems,
             signature_required: signatureRequired,
             notes: "",
             client_info: {}
-          },
+          } as Json,
           created_by: sessionData.session.user.id,
           status: 'draft'
-        }])
+        } as const)
         .select()
         .single();
 
