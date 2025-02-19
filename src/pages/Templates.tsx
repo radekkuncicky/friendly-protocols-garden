@@ -120,8 +120,8 @@ const Templates = () => {
         templates={templates.filter(template => {
           const searchLower = searchQuery.toLowerCase();
           const nameMatch = template.name.toLowerCase().includes(searchLower);
-          const descriptionMatch = template.content?.description ? 
-            template.content.description.toLowerCase().includes(searchLower) : 
+          const descriptionMatch = template.description ? 
+            template.description.toLowerCase().includes(searchLower) : 
             false;
           const typeMatch = template.template_type ? 
             template.template_type.toLowerCase().includes(searchLower) : 
