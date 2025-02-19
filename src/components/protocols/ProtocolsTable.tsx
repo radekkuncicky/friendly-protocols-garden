@@ -24,69 +24,110 @@ interface ProtocolsTableProps {
 export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => {
   return (
     <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <ResizablePanelGroup direction="horizontal">
-              <ResizablePanel defaultSize={20} minSize={15}>
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel defaultSize={20} minSize={15}>
+          <Table>
+            <TableHeader>
+              <TableRow>
                 <TableHead>Číslo protokolu</TableHead>
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={20} minSize={15}>
-                <TableHead>Klient</TableHead>
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={15} minSize={10}>
-                <TableHead>Stav</TableHead>
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={15} minSize={10}>
-                <TableHead>Vytvořeno</TableHead>
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={15} minSize={10}>
-                <TableHead>Upraveno</TableHead>
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={15} minSize={10}>
-                <TableHead className="text-right">Akce</TableHead>
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {protocols?.map((protocol) => (
-            <TableRow key={protocol.id}>
-              <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={20} minSize={15}>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {protocols?.map((protocol) => (
+                <TableRow key={protocol.id}>
                   <TableCell className="font-medium">
                     {protocol.protocol_number}
                   </TableCell>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={20} minSize={15}>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={20} minSize={15}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Klient</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {protocols?.map((protocol) => (
+                <TableRow key={protocol.id}>
                   <TableCell>{protocol.clients?.name || "—"}</TableCell>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={15} minSize={10}>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={15} minSize={10}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Stav</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {protocols?.map((protocol) => (
+                <TableRow key={protocol.id}>
                   <TableCell>
                     <StatusBadge status={protocol.status} />
                   </TableCell>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={15} minSize={10}>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={15} minSize={10}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Vytvořeno</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {protocols?.map((protocol) => (
+                <TableRow key={protocol.id}>
                   <TableCell>
                     {new Date(protocol.created_at).toLocaleDateString("cs-CZ")}
                   </TableCell>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={15} minSize={10}>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={15} minSize={10}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Upraveno</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {protocols?.map((protocol) => (
+                <TableRow key={protocol.id}>
                   <TableCell>
                     {new Date(protocol.updated_at).toLocaleDateString("cs-CZ")}
                   </TableCell>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={15} minSize={10}>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={15} minSize={10}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-right">Akce</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {protocols?.map((protocol) => (
+                <TableRow key={protocol.id}>
                   <TableCell>
                     <ProtocolActions 
                       userRole={userRole} 
@@ -96,21 +137,21 @@ export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => 
                       clientSignature={protocol.client_signature}
                     />
                   </TableCell>
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </TableRow>
-          ))}
-          {(!protocols || protocols.length === 0) && (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center py-8">
-                <p className="text-muted-foreground">
-                  Nebyly nalezeny žádné protokoly
-                </p>
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+      {(!protocols || protocols.length === 0) && (
+        <TableRow>
+          <TableCell colSpan={6} className="text-center py-8">
+            <p className="text-muted-foreground">
+              Nebyly nalezeny žádné protokoly
+            </p>
+          </TableCell>
+        </TableRow>
+      )}
     </div>
   );
 };
