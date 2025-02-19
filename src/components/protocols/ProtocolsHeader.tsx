@@ -1,4 +1,3 @@
-
 import { PlusCircle, Copy, Search, Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -30,10 +29,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Dialog as ClientSearchDialog,
+  DialogContent as ClientSearchDialogContent,
+  DialogHeader as ClientSearchDialogHeader,
+  DialogTitle as ClientSearchDialogTitle,
+} from "@/components/ui/dialog";
 import { CreateClientSheet } from "@/components/clients/CreateClientSheet";
 
 const formSchema = z.object({
@@ -54,6 +54,7 @@ export const ProtocolsHeader = () => {
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [isNewProtocolOpen, setIsNewProtocolOpen] = useState(false);
   const [isNewClientOpen, setIsNewClientOpen] = useState(false);
+  const [isClientSearchOpen, setIsClientSearchOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [openClientCombobox, setOpenClientCombobox] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -139,21 +140,18 @@ export const ProtocolsHeader = () => {
   });
 
   const handleTemplateSelect = (template: Template) => {
-    // Convert template items to form items format
     const templateItems = template.content.items?.map(item => ({
       name: item.name || "",
       quantity: item.quantity || "1",
       unit: item.unit || "ks"
     })) || [];
 
-    // Set form values from template
     form.reset({
       client_id: "",
       type: template.content.type || "",
       items: templateItems.length > 0 ? templateItems : [{ name: "", quantity: "", unit: "ks" }]
     });
 
-    // Close template dialog and open new protocol dialog
     setIsTemplateDialogOpen(false);
     setIsNewProtocolOpen(true);
   };
@@ -172,7 +170,13 @@ export const ProtocolsHeader = () => {
     form.setValue("items", currentItems.filter((_, i) => i !== index));
   };
 
-  const renderClientContent = () => {
+  const handleClientSelect = (clientId: string, clientName: string) => {
+    form.setValue("client_id", clientId);
+    setSearchValue(clientName);
+    setIsClientSearchOpen(false);
+  };
+
+  const renderClientSearchContent = () => {
     if (isLoadingClients) {
       return (
         <div className="flex items-center justify-center py-6">
@@ -187,19 +191,19 @@ export const ProtocolsHeader = () => {
     ) || [];
 
     return (
-      <Command>
+      <Command className="rounded-lg border shadow-md">
+        <CommandInput
+          placeholder="Vyhledat klienta..."
+          value={searchValue}
+          onValueChange={setSearchValue}
+        />
         <CommandList>
           <CommandEmpty>Žádný klient nenalezen.</CommandEmpty>
           <CommandGroup>
             {filteredClients.map((client) => (
               <CommandItem
                 key={client.id}
-                value={client.name}
-                onSelect={() => {
-                  form.setValue("client_id", client.id);
-                  setOpenClientCombobox(false);
-                  setSearchValue(client.name);
-                }}
+                onSelect={() => handleClientSelect(client.id, client.name)}
               >
                 {client.name}
               </CommandItem>
@@ -262,22 +266,22 @@ export const ProtocolsHeader = () => {
                     <FormItem className="flex flex-col">
                       <FormLabel>Klient</FormLabel>
                       <div className="flex gap-2">
-                        <div className="relative w-full">
+                        <div className="relative w-full flex gap-2">
                           <Input
                             placeholder={isLoadingClients ? "Načítání..." : "Vyberte nebo napište jméno klienta"}
                             value={searchValue}
-                            onChange={(e) => {
-                              setSearchValue(e.target.value);
-                              setOpenClientCombobox(true);
-                            }}
+                            onChange={(e) => setSearchValue(e.target.value)}
                             className="w-full"
                             autoComplete="off"
+                            readOnly
                           />
-                          {openClientCombobox && (
-                            <div className="absolute w-full mt-1 z-50 bg-popover rounded-md border shadow-md">
-                              {renderClientContent()}
-                            </div>
-                          )}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsClientSearchOpen(true)}
+                          >
+                            <Search className="h-4 w-4" />
+                          </Button>
                         </div>
                         <Button
                           type="button"
@@ -392,6 +396,15 @@ export const ProtocolsHeader = () => {
             </Form>
           </DialogContent>
         </Dialog>
+
+        <ClientSearchDialog open={isClientSearchOpen} onOpenChange={setIsClientSearchOpen}>
+          <ClientSearchDialogContent>
+            <ClientSearchDialogHeader>
+              <ClientSearchDialogTitle>Vyhledat klienta</ClientSearchDialogTitle>
+            </ClientSearchDialogHeader>
+            {renderClientSearchContent()}
+          </ClientSearchDialogContent>
+        </ClientSearchDialog>
 
         <CreateClientSheet
           open={isNewClientOpen}
