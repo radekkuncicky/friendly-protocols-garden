@@ -26,7 +26,7 @@ const Clients = () => {
             contact_value,
             is_primary
           ),
-          protocols:protocols!protocols_client_id_fkey (
+          protocols:protocols!fk_client (
             count
           )
         `)
@@ -41,7 +41,7 @@ const Clients = () => {
       const transformedData: Client[] = data?.map(client => ({
         ...client,
         contacts: client.contacts || [],
-        protocols: client.protocols || []
+        protocols: client.protocols?.map(p => ({ count: p.count })) || []
       })) || [];
 
       return transformedData;
