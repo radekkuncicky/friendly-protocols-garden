@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -98,8 +99,25 @@ export const useTemplateMutations = () => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session?.user?.id) throw new Error("No user session");
 
+      // Generate a unique name by adding a number if necessary
+      let baseName = `${template.name} (kopie)`;
+      let newName = baseName;
+      let counter = 1;
+
+      while (true) {
+        const { data: existingTemplate } = await supabase
+          .from("user_templates")
+          .select("id")
+          .eq("name", newName)
+          .maybeSingle();
+
+        if (!existingTemplate) break;
+        counter++;
+        newName = `${baseName} ${counter}`;
+      }
+
       const duplicatedTemplate = {
-        name: `${template.name} (kopie)`,
+        name: newName,
         description: template.description,
         content: template.content,
         category: template.category,
