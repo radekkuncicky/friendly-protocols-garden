@@ -83,8 +83,7 @@ export const ProtocolsHeader = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_templates")
-        .select("*")
-        .eq("status", "published");
+        .select("*");
       if (error) throw error;
       
       return (data || []).map(ut => ({
