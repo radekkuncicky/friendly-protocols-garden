@@ -1,3 +1,4 @@
+
 import { PlusCircle, Copy, Search, Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -148,7 +149,7 @@ export const ProtocolsHeader = () => {
 
     form.reset({
       client_id: "",
-      type: template.content.type || "",
+      type: "",  // We don't set the type from template since it's not in the type definition
       items: templateItems.length > 0 ? templateItems : [{ name: "", quantity: "", unit: "ks" }]
     });
 
