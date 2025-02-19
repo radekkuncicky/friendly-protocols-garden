@@ -390,7 +390,7 @@ export type Database = {
             foreignKeyName: "protocols_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
-            referencedRelation: "templates"
+            referencedRelation: "user_templates"
             referencedColumns: ["id"]
           },
         ]
