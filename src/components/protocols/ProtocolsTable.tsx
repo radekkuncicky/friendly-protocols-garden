@@ -13,6 +13,7 @@ import { Protocol } from "@/types/protocol";
 import {
   ResizablePanel,
   ResizablePanelGroup,
+  ResizableHandle,
 } from "@/components/ui/resizable";
 
 interface ProtocolsTableProps {
@@ -30,18 +31,23 @@ export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => 
               <ResizablePanel defaultSize={20} minSize={15}>
                 <TableHead>Číslo protokolu</TableHead>
               </ResizablePanel>
+              <ResizableHandle withHandle />
               <ResizablePanel defaultSize={20} minSize={15}>
                 <TableHead>Klient</TableHead>
               </ResizablePanel>
+              <ResizableHandle withHandle />
               <ResizablePanel defaultSize={15} minSize={10}>
                 <TableHead>Stav</TableHead>
               </ResizablePanel>
+              <ResizableHandle withHandle />
               <ResizablePanel defaultSize={15} minSize={10}>
                 <TableHead>Vytvořeno</TableHead>
               </ResizablePanel>
+              <ResizableHandle withHandle />
               <ResizablePanel defaultSize={15} minSize={10}>
                 <TableHead>Upraveno</TableHead>
               </ResizablePanel>
+              <ResizableHandle withHandle />
               <ResizablePanel defaultSize={15} minSize={10}>
                 <TableHead className="text-right">Akce</TableHead>
               </ResizablePanel>
@@ -57,24 +63,29 @@ export const ProtocolsTable = ({ protocols, userRole }: ProtocolsTableProps) => 
                     {protocol.protocol_number}
                   </TableCell>
                 </ResizablePanel>
+                <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={20} minSize={15}>
                   <TableCell>{protocol.clients?.name || "—"}</TableCell>
                 </ResizablePanel>
+                <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={15} minSize={10}>
                   <TableCell>
                     <StatusBadge status={protocol.status} />
                   </TableCell>
                 </ResizablePanel>
+                <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={15} minSize={10}>
                   <TableCell>
                     {new Date(protocol.created_at).toLocaleDateString("cs-CZ")}
                   </TableCell>
                 </ResizablePanel>
+                <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={15} minSize={10}>
                   <TableCell>
                     {new Date(protocol.updated_at).toLocaleDateString("cs-CZ")}
                   </TableCell>
                 </ResizablePanel>
+                <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={15} minSize={10}>
                   <TableCell>
                     <ProtocolActions 
