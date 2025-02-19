@@ -1,10 +1,13 @@
 
 import { useState } from "react";
 import { Eye, Link2, Trash2 } from "lucide-react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ClientDetailSheet } from "./ClientDetailSheet";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { Client, ClientContact } from "@/types/client";
 
 interface ClientsTableProps {
@@ -13,9 +16,51 @@ interface ClientsTableProps {
 
 export const ClientsTable = ({ clients }: ClientsTableProps) => {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const getPrimaryContact = (contacts: ClientContact[], type: string) => {
     return contacts?.find(contact => contact.contact_type === type && contact.is_primary)?.contact_value;
+  };
+
+  const deleteClientMutation = useMutation({
+    mutationFn: async (clientId: string) => {
+      // First delete related contacts
+      const { error: contactsError } = await supabase
+        .from('client_contacts')
+        .delete()
+        .eq('client_id', clientId);
+
+      if (contactsError) throw contactsError;
+
+      // Then delete the client
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', clientId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast({
+        title: "Klient smazán",
+        description: "Klient byl úspěšně odstraněn",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Chyba",
+        description: "Nepodařilo se smazat klienta: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteClient = (clientId: string) => {
+    if (window.confirm("Opravdu chcete smazat tohoto klienta?")) {
+      deleteClientMutation.mutate(clientId);
+    }
   };
 
   return (
@@ -91,7 +136,11 @@ export const ClientsTable = ({ clients }: ClientsTableProps) => {
                     <Button variant="outline" size="icon">
                       <Link2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="destructive" size="icon">
+                    <Button 
+                      variant="destructive" 
+                      size="icon"
+                      onClick={() => handleDeleteClient(client.id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
