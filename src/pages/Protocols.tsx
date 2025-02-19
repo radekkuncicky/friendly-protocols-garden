@@ -32,7 +32,7 @@ const Protocols = () => {
     fetchUserRole();
   }, []);
 
-  // Fetch protocols with client information
+  // Fetch protocols with client information using the specific foreign key
   const { data: protocols, isLoading } = useQuery({
     queryKey: ["protocols"],
     queryFn: async () => {
@@ -40,7 +40,7 @@ const Protocols = () => {
         .from("protocols")
         .select(`
           *,
-          clients (
+          clients!fk_client (
             name,
             email
           )

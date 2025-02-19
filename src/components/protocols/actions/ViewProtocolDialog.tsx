@@ -27,7 +27,7 @@ export const ViewProtocolDialog = ({
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">
             <span>Protokol č. {protocol.protocol_number}</span>
-            {!protocol.client_signature && protocol.status !== 'completed' && (
+            {!protocol.client_signature && protocol.status === 'draft' && (
               <Button variant="outline" size="sm">
                 <Pencil className="h-4 w-4 mr-2" />
                 Upravit
