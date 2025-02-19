@@ -20,19 +20,31 @@ const Clients = () => {
         .from("clients")
         .select(`
           *,
-          contacts!client_contacts (
+          contacts:client_contacts (
             id,
             contact_type,
             contact_value,
             is_primary
           ),
-          protocols:protocols!fk_client (
+          protocols:protocols!protocols_client_id_fkey (
             count
           )
-        `);
+        `)
+        .order(sortBy, { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+      if (error) {
+        console.error("Error fetching clients:", error);
+        throw error;
+      }
+
+      // Transform the data to match the Client type
+      const transformedData: Client[] = data?.map(client => ({
+        ...client,
+        contacts: client.contacts || [],
+        protocols: client.protocols || []
+      })) || [];
+
+      return transformedData;
     },
   });
 
