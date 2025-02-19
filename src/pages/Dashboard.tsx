@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +22,6 @@ const Dashboard = () => {
       const fromDate = new Date();
       fromDate.setDate(fromDate.getDate() - parseInt(timeRange));
 
-      // Fetch various statistics
       const [
         protocolStats,
         clientStats,
@@ -31,33 +29,28 @@ const Dashboard = () => {
         monthlyData,
         recentActivity
       ] = await Promise.all([
-        // Protocol statistics
         supabase.from("protocols")
         .select("status")
         .gte('created_at', fromDate.toISOString()),
         
-        // Client statistics
         supabase.from("clients")
         .select("id, created_at"),
         
-        // Template statistics with usage count
         supabase.from("templates")
         .select("name, usage_count")
         .order("usage_count", { ascending: false })
         .limit(1),
         
-        // Monthly protocol creation data
         supabase.from("protocols")
         .select("created_at")
         .gte('created_at', subMonths(new Date(), 6).toISOString()),
         
-        // Recent activity
         supabase.from("protocols")
         .select(`
           id,
           status,
           created_at,
-          clients (
+          clients!fk_client (
             name
           )
         `)
@@ -65,19 +58,16 @@ const Dashboard = () => {
         .limit(5)
       ]);
 
-      // Process protocol statistics
       const protocols = protocolStats.data || [];
       const signed = protocols.filter(p => p.status === "signed").length;
       const sent = protocols.filter(p => p.status === "sent").length;
       const draft = protocols.filter(p => p.status === "draft").length;
 
-      // Process client statistics
       const clients = clientStats.data || [];
       const recentClients = clients.filter(
         c => differenceInDays(new Date(), new Date(c.created_at)) <= parseInt(timeRange)
       ).length;
 
-      // Process monthly data
       const monthlyProtocols = Array.from({ length: 6 }, (_, i) => {
         const month = subMonths(new Date(), i);
         const monthStart = startOfMonth(month);
@@ -114,7 +104,6 @@ const Dashboard = () => {
     fetchStats();
   }, [timeRange]);
 
-  // Colors for pie chart
   const COLORS = ['#10B981', '#3B82F6', '#6B7280'];
 
   return (
@@ -135,7 +124,6 @@ const Dashboard = () => {
         </Select>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -181,7 +169,6 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="p-4">
           <CardHeader>
@@ -232,7 +219,6 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Recent Activity */}
       <Card>
         <CardHeader>
           <CardTitle>Nedávná aktivita</CardTitle>
