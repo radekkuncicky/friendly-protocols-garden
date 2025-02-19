@@ -8,6 +8,16 @@ import { Badge } from "@/components/ui/badge";
 import { ClientDetailSheet } from "./ClientDetailSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Client, ClientContact } from "@/types/client";
 
 interface ClientsTableProps {
@@ -16,6 +26,7 @@ interface ClientsTableProps {
 
 export const ClientsTable = ({ clients }: ClientsTableProps) => {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -47,6 +58,7 @@ export const ClientsTable = ({ clients }: ClientsTableProps) => {
         title: "Klient smazán",
         description: "Klient byl úspěšně odstraněn",
       });
+      setClientToDelete(null);
     },
     onError: (error) => {
       toast({
@@ -54,13 +66,12 @@ export const ClientsTable = ({ clients }: ClientsTableProps) => {
         description: "Nepodařilo se smazat klienta: " + error.message,
         variant: "destructive",
       });
+      setClientToDelete(null);
     },
   });
 
   const handleDeleteClient = (clientId: string) => {
-    if (window.confirm("Opravdu chcete smazat tohoto klienta?")) {
-      deleteClientMutation.mutate(clientId);
-    }
+    deleteClientMutation.mutate(clientId);
   };
 
   return (
@@ -139,7 +150,7 @@ export const ClientsTable = ({ clients }: ClientsTableProps) => {
                     <Button 
                       variant="destructive" 
                       size="icon"
-                      onClick={() => handleDeleteClient(client.id)}
+                      onClick={() => setClientToDelete(client.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -165,6 +176,26 @@ export const ClientsTable = ({ clients }: ClientsTableProps) => {
         open={!!selectedClientId}
         onOpenChange={(open) => !open && setSelectedClientId(null)}
       />
+
+      <AlertDialog open={!!clientToDelete} onOpenChange={(open) => !open && setClientToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Opravdu chcete smazat tohoto klienta?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tato akce je nevratná. Klient bude trvale odstraněn ze systému včetně všech jeho kontaktů.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zrušit</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => clientToDelete && handleDeleteClient(clientToDelete)}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Smazat
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
