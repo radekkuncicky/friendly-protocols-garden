@@ -1,30 +1,46 @@
+
 import { useState } from "react";
 import { Eye, Link2, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ClientDetailSheet } from "./ClientDetailSheet";
+
+interface ClientContact {
+  id: string;
+  contact_type: 'email' | 'phone';
+  contact_value: string;
+  is_primary: boolean;
+}
+
 interface Client {
   id: string;
   name: string;
-  email: string | null;
-  phone: string | null;
   ico: string | null;
   dic: string | null;
   created_at: string;
   status: string;
+  contacts: ClientContact[];
   protocols: {
     count: number;
   }[] | null;
 }
+
 interface ClientsTableProps {
   clients: Client[];
 }
+
 export const ClientsTable = ({
   clients
 }: ClientsTableProps) => {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  return <>
+
+  const getPrimaryContact = (contacts: ClientContact[], type: 'email' | 'phone') => {
+    return contacts.find(contact => contact.contact_type === type && contact.is_primary)?.contact_value;
+  };
+
+  return (
+    <>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -39,26 +55,38 @@ export const ClientsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.map(client => <TableRow key={client.id}>
+            {clients.map(client => (
+              <TableRow key={client.id}>
                 <TableCell className="font-medium">{client.name}</TableCell>
                 <TableCell>
                   <div className="space-y-1">
-                    {client.email && <div className="text-sm">{client.email}</div>}
-                    {client.phone && <div className="text-sm text-muted-foreground">
-                        {client.phone}
-                      </div>}
+                    {getPrimaryContact(client.contacts, 'email') && (
+                      <div className="text-sm">
+                        {getPrimaryContact(client.contacts, 'email')}
+                      </div>
+                    )}
+                    {getPrimaryContact(client.contacts, 'phone') && (
+                      <div className="text-sm text-muted-foreground">
+                        {getPrimaryContact(client.contacts, 'phone')}
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="space-y-1">
                     {client.ico && <div className="text-sm">IČO: {client.ico}</div>}
-                    {client.dic && <div className="text-sm text-muted-foreground">
+                    {client.dic && (
+                      <div className="text-sm text-muted-foreground">
                         DIČ: {client.dic}
-                      </div>}
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={client.status === "active" ? "default" : "secondary"} className="bg-lime-500 hover:bg-lime-400">
+                  <Badge
+                    variant={client.status === "active" ? "default" : "secondary"}
+                    className="bg-lime-500 hover:bg-lime-400"
+                  >
                     {client.status === "active" ? "Aktivní" : "Neaktivní"}
                   </Badge>
                 </TableCell>
@@ -67,12 +95,18 @@ export const ClientsTable = ({
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">
-                    {client.protocols && client.protocols[0] ? client.protocols[0].count : 0}
+                    {client.protocols && client.protocols[0]
+                      ? client.protocols[0].count
+                      : 0}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="icon" onClick={() => setSelectedClientId(client.id)}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setSelectedClientId(client.id)}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                     <Button variant="outline" size="icon">
@@ -83,18 +117,26 @@ export const ClientsTable = ({
                     </Button>
                   </div>
                 </TableCell>
-              </TableRow>)}
-            {clients.length === 0 && <TableRow>
+              </TableRow>
+            ))}
+            {clients.length === 0 && (
+              <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
                   <p className="text-muted-foreground">
                     Nebyly nalezeny žádní klienti
                   </p>
                 </TableCell>
-              </TableRow>}
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
 
-      <ClientDetailSheet clientId={selectedClientId} open={!!selectedClientId} onOpenChange={open => !open && setSelectedClientId(null)} />
-    </>;
+      <ClientDetailSheet
+        clientId={selectedClientId}
+        open={!!selectedClientId}
+        onOpenChange={(open) => !open && setSelectedClientId(null)}
+      />
+    </>
+  );
 };

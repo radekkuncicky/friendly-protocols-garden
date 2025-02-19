@@ -93,6 +93,44 @@ export type Database = {
           },
         ]
       }
+      client_contacts: {
+        Row: {
+          client_id: string | null
+          contact_type: string | null
+          contact_value: string
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          contact_type?: string | null
+          contact_value: string
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          contact_type?: string | null
+          contact_value?: string
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
@@ -154,10 +192,11 @@ export type Database = {
           error_message: string | null
           id: string
           protocol_id: string | null
+          retry_count: number | null
           sent_at: string | null
           sent_by: string | null
           sent_to: string
-          status: string | null
+          status: Database["public"]["Enums"]["email_status"] | null
         }
         Insert: {
           attachments?: Json | null
@@ -166,10 +205,11 @@ export type Database = {
           error_message?: string | null
           id?: string
           protocol_id?: string | null
+          retry_count?: number | null
           sent_at?: string | null
           sent_by?: string | null
           sent_to: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["email_status"] | null
         }
         Update: {
           attachments?: Json | null
@@ -178,10 +218,11 @@ export type Database = {
           error_message?: string | null
           id?: string
           protocol_id?: string | null
+          retry_count?: number | null
           sent_at?: string | null
           sent_by?: string | null
           sent_to?: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["email_status"] | null
         }
         Relationships: [
           {
@@ -290,7 +331,7 @@ export type Database = {
           manager_signature: string | null
           protocol_number: string
           sent_at: string | null
-          status: string
+          status: Database["public"]["Enums"]["protocol_status"]
           template_file_path: string | null
           template_id: string | null
           updated_at: string
@@ -307,7 +348,7 @@ export type Database = {
           manager_signature?: string | null
           protocol_number: string
           sent_at?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["protocol_status"]
           template_file_path?: string | null
           template_id?: string | null
           updated_at?: string
@@ -324,13 +365,27 @@ export type Database = {
           manager_signature?: string | null
           protocol_number?: string
           sent_at?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["protocol_status"]
           template_file_path?: string | null
           template_id?: string | null
           updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_client"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_template"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "protocols_client_id_fkey"
             columns: ["client_id"]
@@ -587,9 +642,11 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          previous_version_id: string | null
           status: string | null
           updated_at: string | null
           usage_count: number | null
+          version: number | null
         }
         Insert: {
           category?: string | null
@@ -600,9 +657,11 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          previous_version_id?: string | null
           status?: string | null
           updated_at?: string | null
           usage_count?: number | null
+          version?: number | null
         }
         Update: {
           category?: string | null
@@ -613,11 +672,21 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          previous_version_id?: string | null
           status?: string | null
           updated_at?: string | null
           usage_count?: number | null
+          version?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_templates_previous_version_id_fkey"
+            columns: ["previous_version_id"]
+            isOneToOne: false
+            referencedRelation: "user_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -650,6 +719,8 @@ export type Database = {
     Enums: {
       app_role: "admin" | "manager" | "worker"
       document_template_type: "standard" | "classic" | "minimalist"
+      email_status: "pending" | "sent" | "failed" | "bounced"
+      protocol_status: "draft" | "sent" | "signed" | "archived"
       system_template_type: "minimalistic" | "classic" | "detailed"
     }
     CompositeTypes: {

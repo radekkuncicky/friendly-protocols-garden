@@ -21,7 +21,7 @@ export interface Protocol {
   protocol_number: string;
   client_id: string | null;
   content: ProtocolContent;
-  status: 'draft' | 'sent' | 'completed';
+  status: 'draft' | 'sent' | 'signed' | 'archived';
   created_at: string;
   updated_at: string;
   sent_at: string | null;
