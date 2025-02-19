@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTemplateMutations } from "./templates/useTemplateMutations";
-import { transformPredefinedTemplates, transformUserTemplates } from "./templates/templateTransformers";
+import { transformUserTemplates } from "./templates/templateTransformers";
 import { Template } from "@/types/template";
 
 export const useTemplates = () => {
@@ -14,11 +14,11 @@ export const useTemplates = () => {
   const { data: templates, isLoading, error } = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
-      console.log("Fetching templates...");
+      console.log("Fetching user templates...");
       
-      // First, fetch user templates
+      // Only fetch user templates for the main templates page
       const { data: userTemplates, error: userTemplatesError } = await supabase
-        .from("user_templates")  // Changed from templates to user_templates
+        .from("user_templates")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -27,28 +27,15 @@ export const useTemplates = () => {
         throw userTemplatesError;
       }
 
-      // Then fetch predefined templates
-      const { data: predefinedTemplates, error: predefinedError } = await supabase
-        .from("predefined_templates")
-        .select("*")
-        .order("created_at", { ascending: true });
-
-      if (predefinedError) {
-        console.error("Error fetching predefined templates:", predefinedError);
-        throw predefinedError;
-      }
-
-      const transformedPredefined = transformPredefinedTemplates(predefinedTemplates);
-      const transformedUser = transformUserTemplates(userTemplates);
-
-      console.log("Templates fetched:", [...transformedUser, ...transformedPredefined]);
-      return [...transformedUser, ...transformedPredefined];
+      const transformedTemplates = transformUserTemplates(userTemplates || []);
+      console.log("User templates fetched:", transformedTemplates);
+      return transformedTemplates;
     },
   });
 
   const deleteTemplate = async (template: Template) => {
     const { error } = await supabase
-      .from("user_templates")  // Changed from templates to user_templates
+      .from("user_templates")
       .delete()
       .eq("id", template.id);
 
