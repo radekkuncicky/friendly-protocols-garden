@@ -80,7 +80,7 @@ export const ClientsTable = ({ clients }: ClientsTableProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Název klienta</TableHead>
+              <TableHead>Jméno klienta</TableHead>
               <TableHead>Kontakt</TableHead>
               <TableHead>IČO / DIČ</TableHead>
               <TableHead>Status</TableHead>
