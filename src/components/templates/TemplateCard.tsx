@@ -1,4 +1,5 @@
-import { Lock, Unlock, Edit, Eye, Copy, Trash2, FileText } from "lucide-react";
+
+import { Lock, Unlock, Edit, Copy, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -109,11 +110,12 @@ export const TemplateCard = ({
       <CardFooter className="flex justify-between mt-auto">
         <div className="flex gap-2">
           <Button
-            variant="outline"
-            size="icon"
+            variant="default"
+            size="sm"
             onClick={() => onPreview(template)}
+            className="bg-amber-500 hover:bg-amber-400 text-gray-950"
           >
-            <Eye className="h-4 w-4" />
+            Vybrat šablonu
           </Button>
           {(userRole === "admin" ||
             (userRole === "manager" && !template.is_locked)) && (
