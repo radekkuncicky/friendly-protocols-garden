@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,91 +9,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ChevronDown } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 interface CreateTemplateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
 interface TemplateItem {
   name: string;
   quantity: string;
   unit: string;
 }
+
 const CreateTemplateDialog = ({
   open,
   onOpenChange
 }: CreateTemplateDialogProps) => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Obecné");
   const [items, setItems] = useState<TemplateItem[]>([]);
   const [signatureRequired, setSignatureRequired] = useState(true);
-  const createMutation = useMutation({
-    mutationFn: async () => {
-      const {
-        data: sessionData
-      } = await supabase.auth.getSession();
-      if (!sessionData.session?.user?.id) throw new Error("No user session");
-      const templateContent = {
-        description,
-        items: items.map(item => ({
-          name: item.name,
-          quantity: item.quantity,
-          unit: item.unit
-        })),
-        header: {
-          show_logo: true,
-          show_title: true,
-          show_page_numbers: true
-        },
-        footer: {
-          show_contact: true,
-          show_disclaimer: false
-        }
-      };
-      const {
-        error
-      } = await supabase.from("templates").insert({
-        name,
-        content: templateContent,
-        category,
-        signature_required: signatureRequired,
-        status: 'draft',
-        created_by: sessionData.session.user.id
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["templates"]
-      });
-      toast({
-        title: "Šablona vytvořena",
-        description: "Nová šablona byla úspěšně vytvořena."
-      });
-      onOpenChange(false);
-      setName("");
-      setDescription("");
-      setCategory("Obecné");
-      setItems([]);
-      setSignatureRequired(true);
-    },
-    onError: error => {
-      toast({
-        title: "Chyba",
-        description: "Při vytváření šablony došlo k chybě.",
-        variant: "destructive"
-      });
-      console.error("Error creating template:", error);
-    }
-  });
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setCategory("Obecné");
+    setItems([]);
+    setSignatureRequired(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       toast({
@@ -102,8 +56,72 @@ const CreateTemplateDialog = ({
       });
       return;
     }
-    createMutation.mutate();
+
+    setIsSubmitting(true);
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session?.user?.id) throw new Error("No user session");
+
+      // Check for duplicate name
+      const { data: existingTemplate } = await supabase
+        .from("user_templates")
+        .select("id")
+        .eq("name", name)
+        .maybeSingle();
+
+      if (existingTemplate) {
+        toast({
+          title: "Chyba",
+          description: "Šablona s tímto názvem již existuje.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create template
+      const { data, error } = await supabase
+        .from("user_templates")
+        .insert([{
+          name,
+          description,
+          category,
+          content: {
+            items,
+            signature_required: signatureRequired,
+            notes: "",
+            client_info: {}
+          },
+          created_by: sessionData.session.user.id,
+          status: 'draft'
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Success handling
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast({
+        title: "Šablona vytvořena",
+        description: "Nová šablona byla úspěšně vytvořena."
+      });
+      
+      // Reset and close
+      resetForm();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error creating template:", error);
+      toast({
+        title: "Chyba při vytváření šablony",
+        description: error instanceof Error ? error.message : "Nepodařilo se vytvořit šablonu",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
   const addItem = () => {
     setItems([...items, {
       name: "",
@@ -111,9 +129,11 @@ const CreateTemplateDialog = ({
       unit: "ks"
     }]);
   };
+
   const removeItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
   };
+
   const updateItem = (index: number, field: keyof TemplateItem, value: string) => {
     const newItems = [...items];
     newItems[index] = {
@@ -122,6 +142,7 @@ const CreateTemplateDialog = ({
     };
     setItems(newItems);
   };
+
   return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
@@ -131,7 +152,12 @@ const CreateTemplateDialog = ({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="name">Název šablony</Label>
-              <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Zadejte název šablony" />
+              <Input 
+                id="name" 
+                value={name} 
+                onChange={e => setName(e.target.value)} 
+                placeholder="Zadejte název šablony" 
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="category">Kategorie</Label>
@@ -151,11 +177,20 @@ const CreateTemplateDialog = ({
           
           <div className="space-y-1.5">
             <Label htmlFor="description">Popis</Label>
-            <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Zadejte popis šablony" />
+            <Textarea 
+              id="description" 
+              value={description} 
+              onChange={e => setDescription(e.target.value)} 
+              placeholder="Zadejte popis šablony" 
+            />
           </div>
 
           <div className="flex items-center space-x-2 py-1">
-            <Switch id="signature-required" checked={signatureRequired} onCheckedChange={setSignatureRequired} />
+            <Switch 
+              id="signature-required" 
+              checked={signatureRequired} 
+              onCheckedChange={setSignatureRequired} 
+            />
             <Label htmlFor="signature-required">Vyžadovat podpis</Label>
           </div>
 
@@ -167,28 +202,41 @@ const CreateTemplateDialog = ({
                   <span className="text-sm text-muted-foreground">({items.length})</span>
                 </div>
                 <Button type="button" variant="outline" size="sm" onClick={e => {
-                e.preventDefault();
-                e.stopPropagation();
-                addItem();
-              }}>
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addItem();
+                }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Přidat položku
                 </Button>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3 pt-2">
-                  {items.map((item, index) => <div key={index} className="grid grid-cols-4 gap-2 items-end">
+                  {items.map((item, index) => (
+                    <div key={index} className="grid grid-cols-4 gap-2 items-end">
                       <div className="space-y-1.5">
                         <Label>Název</Label>
-                        <Input value={item.name} onChange={e => updateItem(index, "name", e.target.value)} placeholder="Název položky" />
+                        <Input 
+                          value={item.name} 
+                          onChange={e => updateItem(index, "name", e.target.value)} 
+                          placeholder="Název položky" 
+                        />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Množství</Label>
-                        <Input type="number" value={item.quantity} onChange={e => updateItem(index, "quantity", e.target.value)} placeholder="Množství" />
+                        <Input 
+                          type="number" 
+                          value={item.quantity} 
+                          onChange={e => updateItem(index, "quantity", e.target.value)} 
+                          placeholder="Množství" 
+                        />
                       </div>
                       <div className="space-y-1.5">
                         <Label>Jednotka</Label>
-                        <Select value={item.unit} onValueChange={value => updateItem(index, "unit", value)}>
+                        <Select 
+                          value={item.unit} 
+                          onValueChange={value => updateItem(index, "unit", value)}
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -199,23 +247,44 @@ const CreateTemplateDialog = ({
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(index)} className="h-10">
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => removeItem(index)} 
+                        className="h-10"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </div>)}
+                    </div>
+                  ))}
                 </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => {
+                resetForm();
+                onOpenChange(false);
+              }}
+            >
               Zrušit
             </Button>
-            <Button type="submit" className="bg-amber-500 hover:bg-amber-400 text-zinc-950">Vytvořit</Button>
+            <Button 
+              type="submit" 
+              className="bg-amber-500 hover:bg-amber-400 text-zinc-950"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Vytvářím..." : "Vytvořit"}
+            </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>;
 };
+
 export default CreateTemplateDialog;
