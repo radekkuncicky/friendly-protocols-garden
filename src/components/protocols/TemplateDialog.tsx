@@ -19,7 +19,9 @@ export const TemplateDialog = ({ isOpen, onOpenChange, onTemplateSelect }: Templ
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_templates")
-        .select("*");
+        .select("*")
+        .not('category', 'eq', 'System'); // Exclude system templates
+
       if (error) throw error;
       
       return (data || []).map(ut => ({
