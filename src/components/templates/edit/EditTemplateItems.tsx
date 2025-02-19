@@ -44,41 +44,45 @@ export const EditTemplateItems = ({
         </AccordionTrigger>
         <AccordionContent>
           <div className="space-y-3 pt-2">
-            {items.map((item, index) => (
-              <div key={index} className="grid grid-cols-4 gap-2 items-end">
-                <div className="space-y-1.5">
+            {items.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                <div>
                   <Label>Název</Label>
-                  <Input 
-                    value={item.name} 
-                    onChange={e => updateItem(index, "name", e.target.value)} 
-                    placeholder="Název položky" 
-                  />
                 </div>
-                <div className="space-y-1.5">
+                <div>
                   <Label>Množství</Label>
-                  <Input 
-                    type="number" 
-                    value={item.quantity} 
-                    onChange={e => updateItem(index, "quantity", e.target.value)} 
-                    placeholder="Množství" 
-                  />
                 </div>
-                <div className="space-y-1.5">
+                <div>
                   <Label>Jednotka</Label>
-                  <Select 
-                    value={item.unit} 
-                    onValueChange={value => updateItem(index, "unit", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ks">ks</SelectItem>
-                      <SelectItem value="m">m</SelectItem>
-                      <SelectItem value="g">g</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
+              </div>
+            )}
+            {items.map((item, index) => (
+              <div key={index} className="grid grid-cols-4 gap-2">
+                <Input 
+                  value={item.name} 
+                  onChange={e => updateItem(index, "name", e.target.value)} 
+                  placeholder="Název položky" 
+                />
+                <Input 
+                  type="number" 
+                  value={item.quantity} 
+                  onChange={e => updateItem(index, "quantity", e.target.value)} 
+                  placeholder="Množství" 
+                />
+                <Select 
+                  value={item.unit} 
+                  onValueChange={value => updateItem(index, "unit", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ks">ks</SelectItem>
+                    <SelectItem value="m">m</SelectItem>
+                    <SelectItem value="g">g</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button 
                   type="button" 
                   variant="ghost" 
