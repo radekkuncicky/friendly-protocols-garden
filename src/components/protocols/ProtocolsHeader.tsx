@@ -145,11 +145,16 @@ export const ProtocolsHeader = () => {
           content: template.content,
           status: 'draft',
           template_id: template.id,
-          protocol_number: ''
+          protocol_number: '',
+          created_by: (await supabase.auth.getSession()).data.session?.user.id
         }])
         .select()
         .single();
-      if (error) throw error;
+
+      if (error) {
+        console.error('Error creating protocol:', error);
+        throw error;
+      }
       return protocol;
     },
     onSuccess: () => {
