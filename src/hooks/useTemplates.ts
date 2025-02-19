@@ -1,12 +1,14 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTemplateMutations } from "./templates/useTemplateMutations";
 import { transformPredefinedTemplates, transformUserTemplates } from "./templates/templateTransformers";
+import { Template } from "@/types/template";
 
 export const useTemplates = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const mutations = useTemplateMutations();
 
   const { data: templates, isLoading, error } = useQuery({

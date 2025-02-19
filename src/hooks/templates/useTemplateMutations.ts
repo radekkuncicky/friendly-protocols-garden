@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +11,16 @@ export const useTemplateMutations = () => {
     mutationFn: async (template: Omit<Template, 'id' | 'created_at' | 'created_by'>) => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session?.user?.id) throw new Error("No user session");
+
+      const { data: existingTemplate } = await supabase
+        .from("user_templates")
+        .select("id")
+        .eq("name", template.name)
+        .maybeSingle();
+
+      if (existingTemplate) {
+        throw new Error("Šablona s tímto názvem již existuje");
+      }
 
       console.log("Creating template:", template);
 
@@ -30,6 +39,9 @@ export const useTemplateMutations = () => {
 
       if (error) {
         console.error("Error creating template:", error);
+        if (error.code === '23505') {
+          throw new Error("Šablona s tímto názvem již existuje");
+        }
         throw error;
       }
       
@@ -43,11 +55,11 @@ export const useTemplateMutations = () => {
         description: "Nová šablona byla úspěšně vytvořena.",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Template creation error:", error);
       toast({
         title: "Chyba při vytváření šablony",
-        description: "Nepodařilo se vytvořit šablonu: " + error.message,
+        description: error.message || "Nepodařilo se vytvořit šablonu",
         variant: "destructive",
       });
     },
