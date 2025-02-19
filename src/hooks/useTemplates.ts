@@ -18,7 +18,7 @@ export const useTemplates = () => {
       
       // First, fetch user templates
       const { data: userTemplates, error: userTemplatesError } = await supabase
-        .from("user_templates")
+        .from("user_templates")  // Changed from templates to user_templates
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -48,7 +48,7 @@ export const useTemplates = () => {
 
   const deleteTemplate = async (template: Template) => {
     const { error } = await supabase
-      .from("user_templates")
+      .from("user_templates")  // Changed from templates to user_templates
       .delete()
       .eq("id", template.id);
 
