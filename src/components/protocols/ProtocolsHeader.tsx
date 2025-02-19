@@ -79,14 +79,25 @@ export const ProtocolsHeader = () => {
   });
 
   const { data: templates } = useQuery({
-    queryKey: ["templates"],
+    queryKey: ["user-templates"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("templates")
+        .from("user_templates")
         .select("*")
         .eq("status", "published");
       if (error) throw error;
-      return data as Template[];
+      
+      return (data || []).map(ut => ({
+        id: ut.id,
+        name: ut.name,
+        content: ut.content,
+        category: ut.category || "Obecné",
+        is_locked: false,
+        status: ut.status as 'draft' | 'published',
+        signature_required: true,
+        created_at: ut.created_at,
+        created_by: ut.created_by
+      })) as Template[];
     }
   });
 
@@ -132,7 +143,7 @@ export const ProtocolsHeader = () => {
       const { data: protocol, error } = await supabase
         .from('protocols')
         .insert([{
-          content: template.content as Json,
+          content: template.content,
           status: 'draft',
           template_id: template.id,
           protocol_number: ''
@@ -229,7 +240,22 @@ export const ProtocolsHeader = () => {
             <DialogHeader>
               <DialogTitle>Vyberte šablonu</DialogTitle>
             </DialogHeader>
-            {templates && <TemplateGrid templates={templates} userRole={userRole} onPreview={handleTemplateSelect} onEdit={() => {}} onDuplicate={() => {}} onToggleLock={() => {}} onDelete={() => {}} onStatusChange={() => {}} />}
+            {templates && templates.length > 0 ? (
+              <TemplateGrid 
+                templates={templates} 
+                userRole={userRole} 
+                onPreview={handleTemplateSelect} 
+                onEdit={() => {}} 
+                onDuplicate={() => {}} 
+                onToggleLock={() => {}} 
+                onDelete={() => {}} 
+                onStatusChange={() => {}} 
+              />
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Žádné uživatelské šablony nejsou k dispozici
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 
