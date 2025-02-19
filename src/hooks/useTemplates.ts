@@ -103,6 +103,7 @@ export const useTemplates = () => {
       return data;
     },
     onSuccess: () => {
+      // Invalidate and refetch immediately
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       toast({
         title: "Šablona vytvořena",
