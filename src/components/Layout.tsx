@@ -1,12 +1,15 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarNav } from "./layout/SidebarNav";
 import { UserProfile } from "./layout/UserProfile";
+
 const Layout = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+
   useEffect(() => {
     const checkAuth = async () => {
       const {
@@ -43,13 +46,14 @@ const Layout = () => {
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
+
   return <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
       <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div className="h-full flex flex-col">
           <div className="p-6 mx-0">
             <h1 className="text-amber-500 font-extrabold text-xl">
-              Předávací Protokoly
+              NANPTO protokoly
             </h1>
           </div>
           
@@ -66,4 +70,5 @@ const Layout = () => {
       </div>
     </div>;
 };
+
 export default Layout;

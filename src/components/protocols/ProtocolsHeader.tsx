@@ -23,7 +23,7 @@ export const ProtocolsHeader = () => {
 
   return (
     <div className="flex justify-between items-center">
-      <h1 className="text-3xl font-bold">Protokoly</h1>
+      <h1 className="text-3xl font-bold">NANPTO protokoly</h1>
       <div className="flex gap-2">
         <TemplateDialog
           isOpen={isTemplateDialogOpen}
