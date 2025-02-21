@@ -241,6 +241,85 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          due_date: string
+          file_name: string | null
+          file_path: string | null
+          id: string
+          invoice_number: string
+          price_excl_vat: number
+          price_incl_vat: number
+          project_id: string | null
+          status: Database["public"]["Enums"]["invoice_status"] | null
+          supplier_id: string | null
+          technology_id: string | null
+          updated_at: string
+          updated_by: string | null
+          vat_amount: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          due_date: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          invoice_number: string
+          price_excl_vat: number
+          price_incl_vat: number
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"] | null
+          supplier_id?: string | null
+          technology_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vat_amount: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          due_date?: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          invoice_number?: string
+          price_excl_vat?: number
+          price_incl_vat?: number
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"] | null
+          supplier_id?: string | null
+          technology_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vat_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_technology_id_fkey"
+            columns: ["technology_id"]
+            isOneToOne: false
+            referencedRelation: "project_technologies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       predefined_templates: {
         Row: {
           created_at: string | null
@@ -291,6 +370,56 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_technologies: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          project_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          project_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_technologies_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
           updated_at?: string
         }
         Relationships: []
@@ -508,6 +637,33 @@ export type Database = {
           },
         ]
       }
+      suppliers: {
+        Row: {
+          created_at: string
+          dic: string | null
+          ico: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dic?: string | null
+          ico?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dic?: string | null
+          ico?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       system_templates: {
         Row: {
           configuration: Json
@@ -713,6 +869,7 @@ export type Database = {
       app_role: "admin" | "manager" | "worker"
       document_template_type: "standard" | "classic" | "minimalist"
       email_status: "pending" | "sent" | "failed" | "bounced"
+      invoice_status: "new" | "paid" | "problem"
       protocol_status: "draft" | "sent" | "signed" | "archived"
       system_template_type: "minimalistic" | "classic" | "detailed"
     }
