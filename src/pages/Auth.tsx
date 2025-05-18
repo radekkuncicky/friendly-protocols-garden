@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,6 +64,28 @@ const Auth = () => {
     }
   };
 
+  // Bypass authentication for testing
+  const bypassAuth = async () => {
+    setIsLoading(true);
+    try {
+      // Skip actual authentication, simulate session directly
+      // This doesn't create a real session but tricks app logic
+      navigate("/");
+      toast({
+        title: "Rychlé přihlášení",
+        description: "Přihlášen jako testovací uživatel (admin)",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Chyba",
+        description: "Nepodařilo se obejít přihlášení",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="p-8 bg-white rounded-lg shadow-md w-full max-w-md">
@@ -96,6 +119,18 @@ const Auth = () => {
               : "Přihlásit se"}
           </Button>
         </form>
+        
+        {/* Test bypass button */}
+        <div className="mt-4">
+          <Button 
+            className="w-full bg-amber-500 hover:bg-amber-400 text-zinc-950" 
+            onClick={bypassAuth}
+            disabled={isLoading}
+          >
+            Rychlé přihlášení pro testování
+          </Button>
+        </div>
+        
         <p className="mt-4 text-center text-sm text-gray-600">
           {isSignUp ? "Již máte účet?" : "Nemáte účet?"}{" "}
           <button
