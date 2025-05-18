@@ -129,6 +129,9 @@ export const NewInvoiceForm = ({ onSuccess }: NewInvoiceFormProps) => {
         filePath = fileName;
       }
 
+      // Convert the Date object to a string in YYYY-MM-DD format for Supabase
+      const formattedDueDate = format(values.dueDate, 'yyyy-MM-dd');
+
       const { error: insertError } = await supabase
         .from("invoices")
         .insert({
@@ -137,7 +140,7 @@ export const NewInvoiceForm = ({ onSuccess }: NewInvoiceFormProps) => {
           price_excl_vat: values.priceExclVat,
           price_incl_vat: values.priceInclVat,
           vat_amount: values.vatAmount,
-          due_date: values.dueDate,
+          due_date: formattedDueDate, // Use the formatted string date
           status: values.status,
           project_id: values.projectId,
           technology_id: values.technologyId,
